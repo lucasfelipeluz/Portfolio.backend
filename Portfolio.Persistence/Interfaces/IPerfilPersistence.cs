@@ -9,8 +9,7 @@ namespace Portfolio.Persistence.Interfaces
 {
     public interface IPerfilPersistence
     {
-        Task<Perfil> GetPerfilAsync(int id);
-        Task<bool?> EditPerfilAsync(int id, Perfil model);
+        Task<Perfil> GetPerfil(int id);
 
     }
 }

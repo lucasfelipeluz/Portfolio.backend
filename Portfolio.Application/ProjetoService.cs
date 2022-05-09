@@ -58,6 +58,8 @@ namespace Portfolio.Application
         {
             try
             {
+                model.DataAtualizacaoProjeto = DateTime.Now;
+
                 Projeto projeto = _mapper.Map<Projeto>(model);
                 _geralPersistence.Add(projeto);
                 if (await _geralPersistence.SaveChangesAsync()) { return true; }
@@ -93,6 +95,7 @@ namespace Portfolio.Application
                 if(projeto == null) return null;
 
                 model.Id = projeto.Id;
+                model.DataAtualizacaoProjeto = DateTime.Now;
 
                 _mapper.Map(model, projeto);
 

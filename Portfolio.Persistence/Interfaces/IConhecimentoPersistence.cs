@@ -10,6 +10,5 @@ namespace Portfolio.Persistence.Interfaces
     public interface IConhecimentoPersistence
     {
         Task<Conhecimento> GetConhecimentoAsync(int id);
-        Task<bool?> EditConhecimentoAsync(int id, Conhecimento model);
     }
 }
