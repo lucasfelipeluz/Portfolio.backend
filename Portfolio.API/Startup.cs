@@ -33,9 +33,13 @@ namespace Portfolio.API
                 );
 
             services.AddScoped<IProjetoService, ProjetoService>();
+            services.AddScoped<IPerfilService, PerfilService>();
+            services.AddScoped<IConhecimentoService, ConhecimentoService>();
 
             services.AddScoped<IGeralPersistence, GeralPersistence>();
             services.AddScoped<IProjetoPersistence, ProjetoPersistence>();
+            services.AddScoped<IPerfilPersistence, PerfilPersistence>();
+            services.AddScoped<IConhecimentoPersistence, ConhecimentoPersistence>();    
             
 
             services.AddControllers();

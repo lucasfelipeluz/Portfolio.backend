@@ -1,11 +1,12 @@
-﻿using Portfolio.Domain;
+﻿using Portfolio.Application.Dto;
 using System.Threading.Tasks;
 
 namespace Portfolio.Application.Interfaces
 {
-    internal interface IConhecimentoService
+    public interface IConhecimentoService
     {
-        Task<Conhecimento> GetConhecimento();
-        Task<bool?> UpdateConhecimento(Conhecimento model);
+        Task<ConhecimentoDto> GetConhecimento();
+        Task<bool?> AddDefaultConhecimento(ConhecimentoDto model);
+        Task<bool?> UpdateConhecimento(ConhecimentoDto model);
     }
 }

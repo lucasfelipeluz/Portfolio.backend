@@ -1,11 +1,12 @@
-﻿using Portfolio.Domain;
+﻿using Portfolio.Application.Dto;
 using System.Threading.Tasks;
 
 namespace Portfolio.Application.Interfaces
 {
-    internal interface IPerfilService
+    public interface IPerfilService
     {
-        Task<Perfil> GetPerfil();
-        Task<bool?> UpdatePerfil(Perfil model);
+        Task<PerfilDto> GetPerfil();
+        Task<bool?> AddDefaultPerfil(PerfilDto model);
+        Task<bool?> UpdatePerfil(PerfilDto model);
     }
 }
