@@ -1,0 +1,8 @@
+﻿namespace Portfolio.Domain.Entities
+{
+  public abstract class Base
+  {
+    public int Id { get; set; }
+    public abstract bool Validate();
+  }
+}
