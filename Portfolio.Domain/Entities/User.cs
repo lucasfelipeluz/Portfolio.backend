@@ -8,9 +8,6 @@
     public bool IsActive { get; private set; }
     public DateTime CreatedAt { get; private set; }
 
-    public override bool Validate()
-    {
-      throw new NotImplementedException();
-    }
+
   }
 }
