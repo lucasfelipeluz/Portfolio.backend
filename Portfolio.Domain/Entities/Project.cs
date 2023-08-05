@@ -11,11 +11,9 @@ namespace Portfolio.Domain.Entities
     public bool IsActive { get; private set; }
     public DateTime CreatedAt { get; private set; }
     public DateTime? UpdatedAt { get; private set; }
+    public DateTime? StartedAt { get; private set; }
     public DateTime? FinishedAt { get; private set; }
+    public List<Skill> Skills { get; private set; }
 
-    public override bool Validate()
-    {
-      throw new NotImplementedException();
-    }
   }
 }
