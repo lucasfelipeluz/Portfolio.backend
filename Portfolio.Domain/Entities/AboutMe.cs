@@ -10,5 +10,6 @@
     public string LinkedinLink { get; private set; } = string.Empty;
     public string GithubLink { get; private set; } = string.Empty;
     public bool IsAvailable { get; private set; }
+    public DateTime CreatedAt { get; private set; }
   }
 }

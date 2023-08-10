@@ -37,9 +37,9 @@ namespace Portfolio.Infra.Mappings
       builder.Property(e => e.CreatedAt)
         .IsRequired()
         .HasColumnName("created_at")
+        .HasDefaultValueSql("CURRENT_TIMESTAMP")
         .HasColumnType("TIMESTAMP")
         .ValueGeneratedOnAdd();
-
     }
   }
 }

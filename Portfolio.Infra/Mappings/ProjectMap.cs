@@ -47,12 +47,14 @@ namespace Portfolio.Infra.Mappings
       builder.Property(e => e.CreatedAt)
         .IsRequired()
         .HasColumnName("created_at")
+        .HasDefaultValueSql("CURRENT_TIMESTAMP")
         .HasColumnType("TIMESTAMP")
         .ValueGeneratedOnAdd();
 
       builder.Property(e => e.UpdatedAt)
         .HasColumnName("updated_at")
         .HasColumnType("TIMESTAMP")
+        .HasDefaultValueSql("CURRENT_TIMESTAMP")
         .ValueGeneratedOnAddOrUpdate();
 
       builder.Property(e => e.StartedAt)

@@ -6,11 +6,11 @@ namespace Portfolio.Infra.Context
   public class PortfolioContext : DbContext
   {
     public PortfolioContext(DbContextOptions<PortfolioContext> options) : base(options) { }
-    DbSet<Project> Projects { get; set; }
-    DbSet<Skill> Skills { get; set; }
-    DbSet<AboutMe> AboutMe { get; set; }
-    DbSet<User> Users { get; set; }
-    DbSet<ProjectSkill> ProjectsSkills { get; set; }
+    public DbSet<Project> Projects { get; set; }
+    public DbSet<Skill> Skills { get; set; }
+    public DbSet<AboutMe> AboutMe { get; set; }
+    public DbSet<User> Users { get; set; }
+    public DbSet<ProjectSkill> ProjectsSkills { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
