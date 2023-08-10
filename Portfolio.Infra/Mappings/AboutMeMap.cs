@@ -53,6 +53,13 @@ namespace Portfolio.Infra.Mappings
         .HasColumnName("is_available")
         .HasColumnType("TINYINT");
 
+      builder.Property(e => e.CreatedAt)
+        .IsRequired()
+        .HasColumnName("created_at")
+        .HasDefaultValueSql("CURRENT_TIMESTAMP")
+        .HasColumnType("TIMESTAMP")
+        .ValueGeneratedOnAdd();
+
     }
   }
 }
