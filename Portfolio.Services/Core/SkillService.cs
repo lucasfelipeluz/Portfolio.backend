@@ -6,12 +6,12 @@ using Portfolio.Services.Interfaces;
 
 namespace Portfolio.Services
 {
-  public class SkillServices : ISkillService
+  public class SkillService : ISkillService
   {
     private readonly IMapper _mapper;
     private readonly IBaseRepository<Skill> _skillRepository;
 
-    public SkillServices(IMapper mapper, IBaseRepository<Skill> skillRepository)
+    public SkillService(IMapper mapper, IBaseRepository<Skill> skillRepository)
     {
       _mapper = mapper;
       _skillRepository = skillRepository;
