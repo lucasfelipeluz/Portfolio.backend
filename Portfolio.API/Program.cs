@@ -24,6 +24,15 @@ MapperConfiguration autoMapperConfig = new(cfg =>
 });
 builder.Services.AddSingleton(autoMapperConfig.CreateMapper());
 
+// Connect to database
+string connectionString = builder.Configuration.GetConnectionString("Banco");
+builder.Services.AddDbContext<PortfolioContext>(
+  options => options.UseMySql(
+    connectionString,
+    ServerVersion.AutoDetect(connectionString)
+  )
+);
+
 // Add Service and Repository of Project
 builder.Services.AddScoped<IProjectService, ProjectService>();
 builder.Services.AddScoped<ISkillService, SkillService>();
@@ -34,16 +43,6 @@ builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
 builder.Services.AddScoped<ISkillRepository, SkillRepository>();
 builder.Services.AddScoped<IAboutMeRepository, AboutMeRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
-
-
-// Connect to database
-string connectionString = builder.Configuration.GetConnectionString("Banco");
-builder.Services.AddDbContext<PortfolioContext>(
-  options => options.UseMySql(
-    connectionString,
-    ServerVersion.AutoDetect(connectionString)
-  )
-);
 
 var app = builder.Build();
 
