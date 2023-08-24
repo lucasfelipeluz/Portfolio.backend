@@ -12,9 +12,14 @@ namespace Portfolio.Infra.Context
     public DbSet<User> Users { get; set; }
     public DbSet<ProjectSkill> ProjectsSkills { get; set; }
 
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+      string connectionString = "Server=localhost;Database=portfolio;Uid=root;Pwd=Telegram2012*;";
+      optionsBuilder.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
+    }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-      base.OnModelCreating(modelBuilder);
       modelBuilder.ApplyConfigurationsFromAssembly(GetType().Assembly);
     }
   }
