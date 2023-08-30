@@ -1,0 +1,100 @@
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Portfolio.API.ViewModels;
+using Portfolio.Services.Dto;
+using Portfolio.Services.Interfaces;
+
+namespace Portfolio.API.Controllers
+{
+  [Route("api/projects")]
+  [ApiController]
+  public class ProjectController : ControllerBase
+  {
+    private readonly IMapper _mapper;
+    private readonly IProjectService _projectService;
+
+    public ProjectController(IProjectService projectService, IMapper mapper)
+    {
+      _projectService = projectService;
+      _mapper = mapper;
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetAsync()
+    {
+      try
+      {
+        var projects = await _projectService.GetAllProjectsAsync();
+
+        return Ok(projects);
+      }
+      catch (Exception)
+      {
+        throw new ApplicationException();
+      }
+    }
+
+    [HttpGet]
+    [Route("{id}")]
+    public async Task<IActionResult> GetByIdAsync(int id)
+    {
+      try
+      {
+        var project = await _projectService.GetProjectByIdAsync(id);
+        return Ok(project);
+      }
+      catch (Exception)
+      {
+        throw new ApplicationException();
+      }
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> CreateAsync([FromBody] CreateProjectViewModel createProjectViewModel)
+    {
+      try
+      {
+        var projectDto = _mapper.Map<ProjectDto>(createProjectViewModel);
+        var response = await _projectService.CreateProjectAsync(projectDto);
+        return Ok(response);
+      }
+      catch (Exception error)
+      {
+        return StatusCode(StatusCodes.Status500InternalServerError, new { Message = error.Message });
+      }
+    }
+
+    [HttpPut]
+    public async Task<IActionResult> UpdateAsync([FromBody] UpdateProjectViewModel updateProjectViewModel)
+    {
+      try
+      {
+        var projectDto = _mapper.Map<ProjectDto>(updateProjectViewModel);
+        var response = await _projectService.UpdateProjectAsync(projectDto);
+        return Ok(response);
+      }
+      catch (Exception error)
+      {
+        Console.WriteLine(error.InnerException.Message);
+        return StatusCode(StatusCodes.Status500InternalServerError, new { Message = error.Message, Errors = error.StackTrace });
+      }
+    }
+
+    [HttpDelete]
+    public async Task<IActionResult> DeleteAsync(int id)
+    {
+      try
+      {
+        await _projectService.DeleteProjectAsync(id);
+        return Ok();
+      }
+      catch (Exception)
+      {
+        throw new ApplicationException();
+      }
+    }
+
+
+  }
+}
