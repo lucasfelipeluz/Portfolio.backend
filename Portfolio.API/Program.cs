@@ -1,5 +1,7 @@
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
+using Portfolio.API.ViewModels;
 using Portfolio.Domain.Entities;
 using Portfolio.Infra.Context;
 using Portfolio.Infra.Interfaces;
@@ -10,21 +12,14 @@ using Portfolio.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+builder.Services.AddControllers().AddNewtonsoftJson(
+  options => options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
+  );
 
-builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Add Mapper's Service
-MapperConfiguration autoMapperConfig = new(cfg =>
-{
-  cfg.CreateMap<Project, ProjectDto>().ReverseMap();
-});
-builder.Services.AddSingleton(autoMapperConfig.CreateMapper());
-
-// Connect to database
+# region Add Service and Repository of Project
 string connectionString = builder.Configuration.GetConnectionString("Banco");
 builder.Services.AddDbContext<PortfolioContext>(
   options => options.UseMySql(
@@ -33,16 +28,22 @@ builder.Services.AddDbContext<PortfolioContext>(
   )
 );
 
-// Add Service and Repository of Project
-builder.Services.AddScoped<IProjectService, ProjectService>();
-builder.Services.AddScoped<ISkillService, SkillService>();
-builder.Services.AddScoped<IAboutMeService, AboutMeService>();
-builder.Services.AddScoped<IUserService, UserService>();
-
 builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
 builder.Services.AddScoped<ISkillRepository, SkillRepository>();
 builder.Services.AddScoped<IAboutMeRepository, AboutMeRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+
+builder.Services.AddScoped<IProjectService, ProjectService>();
+
+// Add Mapper's Service
+MapperConfiguration autoMapperConfig = new(cfg =>
+{
+  cfg.CreateMap<Project, ProjectDto>().ReverseMap();
+  cfg.CreateMap<CreateProjectViewModel, ProjectDto>().ReverseMap();
+  cfg.CreateMap<UpdateProjectViewModel, ProjectDto>().ReverseMap();
+});
+builder.Services.AddSingleton(autoMapperConfig.CreateMapper());
+#endregion
 
 var app = builder.Build();
 
