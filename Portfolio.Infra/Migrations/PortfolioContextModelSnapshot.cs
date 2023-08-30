@@ -104,8 +104,8 @@ namespace Portfolio.Infra.Migrations
                     b.Property<sbyte>("IsActive")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TINYINT")
-                        .HasColumnName("is_active")
-                        .HasDefaultValueSql("1");
+                        .HasDefaultValue((sbyte)1)
+                        .HasColumnName("is_active");
 
                     b.Property<DateTime?>("StartedAt")
                         .IsRequired()
@@ -152,9 +152,6 @@ namespace Portfolio.Infra.Migrations
                         .HasColumnType("int")
                         .HasColumnName("skill_id");
 
-                    b.Property<int>("Id")
-                        .HasColumnType("int");
-
                     b.HasKey("ProjectId", "SkillId");
 
                     b.HasIndex("SkillId");
@@ -198,8 +195,8 @@ namespace Portfolio.Infra.Migrations
                     b.Property<sbyte>("IsActive")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TINYINT")
-                        .HasColumnName("is_active")
-                        .HasDefaultValueSql("1");
+                        .HasDefaultValue((sbyte)1)
+                        .HasColumnName("is_active");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -238,8 +235,8 @@ namespace Portfolio.Infra.Migrations
                     b.Property<sbyte>("IsActive")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TINYINT")
-                        .HasColumnName("is_active")
-                        .HasDefaultValueSql("1");
+                        .HasDefaultValue((sbyte)1)
+                        .HasColumnName("is_active");
 
                     b.Property<string>("Name")
                         .IsRequired()
