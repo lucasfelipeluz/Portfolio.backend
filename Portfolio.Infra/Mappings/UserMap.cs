@@ -32,7 +32,7 @@ namespace Portfolio.Infra.Mappings
         .IsRequired()
         .HasColumnName("is_active")
         .HasColumnType("TINYINT")
-        .HasDefaultValueSql("1");
+        .HasDefaultValue(true);
 
       builder.Property(e => e.CreatedAt)
         .IsRequired()

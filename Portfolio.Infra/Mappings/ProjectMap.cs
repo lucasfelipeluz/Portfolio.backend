@@ -42,7 +42,7 @@ namespace Portfolio.Infra.Mappings
         .IsRequired()
         .HasColumnName("is_active")
         .HasColumnType("TINYINT")
-        .HasDefaultValueSql("1");
+        .HasDefaultValue(true);
 
       builder.Property(e => e.CreatedAt)
         .IsRequired()
@@ -77,6 +77,8 @@ namespace Portfolio.Infra.Mappings
           x =>
           {
             x.ToTable("projects_skills");
+
+            x.Ignore(x => x.Id);
 
             x.HasKey(e => new { e.ProjectId, e.SkillId });
 
