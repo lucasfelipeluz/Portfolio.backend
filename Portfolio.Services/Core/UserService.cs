@@ -9,9 +9,9 @@ namespace Portfolio.Services
   public class UserService : IUserService
   {
     private readonly IMapper _mapper;
-    private readonly IBaseRepository<User> _userRepository;
+    private readonly IUserRepository _userRepository;
 
-    public UserService(IMapper mapper, IBaseRepository<User> userRepository)
+    public UserService(IMapper mapper, IUserRepository userRepository)
     {
       _mapper = mapper;
       _userRepository = userRepository;

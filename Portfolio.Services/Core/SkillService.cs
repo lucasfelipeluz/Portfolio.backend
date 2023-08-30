@@ -9,9 +9,9 @@ namespace Portfolio.Services
   public class SkillService : ISkillService
   {
     private readonly IMapper _mapper;
-    private readonly IBaseRepository<Skill> _skillRepository;
+    private readonly ISkillRepository _skillRepository;
 
-    public SkillService(IMapper mapper, IBaseRepository<Skill> skillRepository)
+    public SkillService(IMapper mapper, ISkillRepository skillRepository)
     {
       _mapper = mapper;
       _skillRepository = skillRepository;
