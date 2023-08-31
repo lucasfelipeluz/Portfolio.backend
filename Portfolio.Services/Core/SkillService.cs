@@ -47,6 +47,8 @@ namespace Portfolio.Services
         return false;
 
       var skill = _mapper.Map<Skill>(skillDto);
+      skill.CreatedAt = skillExists.CreatedAt;
+      skill.UpdatedAt = DateTime.Now;
 
       await _skillRepository.UpdateAsync(skill);
 
