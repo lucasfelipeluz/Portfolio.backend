@@ -34,6 +34,7 @@ builder.Services.AddScoped<IAboutMeRepository, AboutMeRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 builder.Services.AddScoped<IProjectService, ProjectService>();
+builder.Services.AddScoped<ISkillService, SkillService>();
 
 // Add Mapper's Service
 MapperConfiguration autoMapperConfig = new(cfg =>
@@ -41,6 +42,9 @@ MapperConfiguration autoMapperConfig = new(cfg =>
   cfg.CreateMap<Project, ProjectDto>().ReverseMap();
   cfg.CreateMap<CreateProjectViewModel, ProjectDto>().ReverseMap();
   cfg.CreateMap<UpdateProjectViewModel, ProjectDto>().ReverseMap();
+  cfg.CreateMap<Skill, SkillDto>().ReverseMap();
+  cfg.CreateMap<CreateSkillViewModel, SkillDto>().ReverseMap();
+  cfg.CreateMap<UpdateSkillViewModel, SkillDto>().ReverseMap();
 });
 builder.Services.AddSingleton(autoMapperConfig.CreateMapper());
 #endregion

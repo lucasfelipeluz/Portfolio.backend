@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Portfolio.API.Utils;
 using Portfolio.API.ViewModels;
@@ -7,17 +8,17 @@ using Portfolio.Services.Interfaces;
 
 namespace Portfolio.API.Controllers
 {
-  [Route("api/projects")]
+  [Route("api/skills")]
   [ApiController]
-  public class ProjectController : ControllerBase
+  public class SkillController : ControllerBase
   {
     private readonly IMapper _mapper;
-    private readonly IProjectService _projectService;
+    private readonly ISkillService _skillService;
 
-    public ProjectController(IProjectService projectService, IMapper mapper)
+    public SkillController(IMapper mapper, ISkillService skillService)
     {
-      _projectService = projectService;
       _mapper = mapper;
+      _skillService = skillService;
     }
 
     [HttpGet]
@@ -25,9 +26,9 @@ namespace Portfolio.API.Controllers
     {
       try
       {
-        var projects = await _projectService.GetAllProjectsAsync();
+        var skills = await _skillService.GetAllSkillsAsync();
 
-        return Ok(projects);
+        return Ok(skills);
       }
       catch (Exception)
       {
@@ -41,8 +42,9 @@ namespace Portfolio.API.Controllers
     {
       try
       {
-        var project = await _projectService.GetProjectByIdAsync(id);
-        return Ok(project);
+        var skill = await _skillService.GetSkillByIdAsync(id);
+
+        return Ok(skill);
       }
       catch (Exception)
       {
@@ -51,12 +53,12 @@ namespace Portfolio.API.Controllers
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateAsync([FromBody] CreateProjectViewModel createProjectViewModel)
+    public async Task<IActionResult> CreateAsync([FromBody] CreateSkillViewModel createSkillViewModel)
     {
       try
       {
-        var projectDto = _mapper.Map<ProjectDto>(createProjectViewModel);
-        var response = await _projectService.CreateProjectAsync(projectDto);
+        var skillDto = _mapper.Map<SkillDto>(createSkillViewModel);
+        var response = await _skillService.CreateSkillAsync(skillDto);
         return Ok(response);
       }
       catch (Exception)
@@ -66,12 +68,12 @@ namespace Portfolio.API.Controllers
     }
 
     [HttpPut]
-    public async Task<IActionResult> UpdateAsync([FromBody] UpdateProjectViewModel updateProjectViewModel)
+    public async Task<IActionResult> UpdateAsync([FromBody] UpdateSkillViewModel updateSkillViewModel)
     {
       try
       {
-        var projectDto = _mapper.Map<ProjectDto>(updateProjectViewModel);
-        var response = await _projectService.UpdateProjectAsync(projectDto);
+        var skillDto = _mapper.Map<SkillDto>(updateSkillViewModel);
+        var response = await _skillService.UpdateSkillAsync(skillDto);
         return Ok(response);
       }
       catch (Exception)
@@ -85,7 +87,7 @@ namespace Portfolio.API.Controllers
     {
       try
       {
-        await _projectService.DeleteProjectAsync(id);
+        await _skillService.DeleteSkillAsync(id);
         return Ok();
       }
       catch (Exception)
