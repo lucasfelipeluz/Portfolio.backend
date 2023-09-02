@@ -19,7 +19,7 @@ namespace Portfolio.Services
 
     public async Task<List<SkillDto>> GetAllSkillsAsync()
     {
-      var skills = await _skillRepository.GetAllAsync();
+      var skills = await _skillRepository.GetActivesSkills();
       return _mapper.Map<List<SkillDto>>(skills);
     }
 

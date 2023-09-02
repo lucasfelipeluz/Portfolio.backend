@@ -13,6 +13,18 @@ namespace Portfolio.Infra.Repositories
       _context = context;
     }
 
+    public async Task<List<Project>> GetActivesProjects()
+    {
+      var projects = await _context.Projects
+        .AsNoTracking()
+        .Where(x => x.IsActive == true)
+        .OrderByDescending(x => x.ViewPriority)
+        .Include(x => x.Skills)
+        .ToListAsync();
+
+      return projects;
+    }
+
     public async Task<Project> GetProjectById(int Id)
     {
       var project = await _context

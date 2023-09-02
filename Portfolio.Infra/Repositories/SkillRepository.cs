@@ -13,6 +13,18 @@ namespace Portfolio.Infra.Repositories
       _context = context;
     }
 
+    public async Task<List<Skill>> GetActivesSkills()
+    {
+      var skills = await _context.Skills
+        .AsNoTracking()
+        .Where(x => x.IsActive == true)
+        .OrderByDescending(x => x.ViewPriority)
+        .Include(x => x.Projects)
+        .ToListAsync();
+
+      return skills;
+    }
+
     public async Task<bool> DeleteSkill(int id)
     {
       var skill = await _context.Skills

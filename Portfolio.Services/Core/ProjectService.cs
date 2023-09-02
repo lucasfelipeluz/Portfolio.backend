@@ -20,7 +20,7 @@ namespace Portfolio.Services
 
     public async Task<List<ProjectDto>> GetAllProjectsAsync()
     {
-      var projects = await _projectRepository.GetAllAsync();
+      var projects = await _projectRepository.GetActivesProjects();
       return _mapper.Map<List<ProjectDto>>(projects);
     }
 
