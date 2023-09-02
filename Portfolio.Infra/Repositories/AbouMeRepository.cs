@@ -19,7 +19,7 @@ namespace Portfolio.Infra.Repositories
         .OrderBy(e => e.CreatedAt)
         .ToListAsync();
 
-      return aboutMe.First();
+      return aboutMe.Last();
     }
 
     public async Task<bool> UpdateAboutMeAsync(AboutMe aboutMe)
