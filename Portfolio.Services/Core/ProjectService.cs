@@ -63,7 +63,10 @@ namespace Portfolio.Services
       if (project == null)
         return false;
 
-      await _projectRepository.DeleteAsync(id);
+      var response = await _projectRepository.DeleteProject(id);
+
+      if (!response)
+        return false;
 
       return true;
     }

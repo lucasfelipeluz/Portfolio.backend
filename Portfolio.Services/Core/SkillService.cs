@@ -62,7 +62,7 @@ namespace Portfolio.Services
       if (project == null)
         return false;
 
-      await _skillRepository.DeleteAsync(id);
+      await _skillRepository.DeleteSkill(id);
 
       return true;
     }

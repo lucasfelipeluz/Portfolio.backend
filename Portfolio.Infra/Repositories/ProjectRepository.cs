@@ -24,5 +24,22 @@ namespace Portfolio.Infra.Repositories
 
       return project.First();
     }
+
+    public async Task<bool> DeleteProject(int id)
+    {
+      var project = await _context.Projects
+        .AsNoTracking()
+        .Where(x => x.Id == id)
+        .FirstAsync();
+
+      project.IsActive = false;
+      project.UpdatedAt = DateTime.Now;
+
+      _context.Entry(project).State = EntityState.Modified;
+
+      await _context.SaveChangesAsync();
+
+      return true;
+    }
   }
 }
