@@ -13,6 +13,18 @@ namespace Portfolio.Infra.Repositories
       _context = context;
     }
 
+    public async Task<List<Project>> GetActivesProjects()
+    {
+      var projects = await _context.Projects
+        .AsNoTracking()
+        .Where(x => x.IsActive == true)
+        .OrderByDescending(x => x.ViewPriority)
+        .Include(x => x.Skills)
+        .ToListAsync();
+
+      return projects;
+    }
+
     public async Task<Project> GetProjectById(int Id)
     {
       var project = await _context
@@ -23,6 +35,23 @@ namespace Portfolio.Infra.Repositories
         .ToListAsync();
 
       return project.First();
+    }
+
+    public async Task<bool> DeleteProject(int id)
+    {
+      var project = await _context.Projects
+        .AsNoTracking()
+        .Where(x => x.Id == id)
+        .FirstAsync();
+
+      project.IsActive = false;
+      project.UpdatedAt = DateTime.Now;
+
+      _context.Entry(project).State = EntityState.Modified;
+
+      await _context.SaveChangesAsync();
+
+      return true;
     }
   }
 }

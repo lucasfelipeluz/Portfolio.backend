@@ -19,7 +19,7 @@ namespace Portfolio.Services
 
     public async Task<List<SkillDto>> GetAllSkillsAsync()
     {
-      var skills = await _skillRepository.GetAllAsync();
+      var skills = await _skillRepository.GetActivesSkills();
       return _mapper.Map<List<SkillDto>>(skills);
     }
 
@@ -62,7 +62,7 @@ namespace Portfolio.Services
       if (project == null)
         return false;
 
-      await _skillRepository.DeleteAsync(id);
+      await _skillRepository.DeleteSkill(id);
 
       return true;
     }

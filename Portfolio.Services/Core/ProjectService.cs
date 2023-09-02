@@ -20,7 +20,7 @@ namespace Portfolio.Services
 
     public async Task<List<ProjectDto>> GetAllProjectsAsync()
     {
-      var projects = await _projectRepository.GetAllAsync();
+      var projects = await _projectRepository.GetActivesProjects();
       return _mapper.Map<List<ProjectDto>>(projects);
     }
 
@@ -63,7 +63,10 @@ namespace Portfolio.Services
       if (project == null)
         return false;
 
-      await _projectRepository.DeleteAsync(id);
+      var response = await _projectRepository.DeleteProject(id);
+
+      if (!response)
+        return false;
 
       return true;
     }
