@@ -9,9 +9,9 @@ namespace Portfolio.Services
   public class SkillService : ISkillService
   {
     private readonly IMapper _mapper;
-    private readonly IBaseRepository<Skill> _skillRepository;
+    private readonly ISkillRepository _skillRepository;
 
-    public SkillService(IMapper mapper, IBaseRepository<Skill> skillRepository)
+    public SkillService(IMapper mapper, ISkillRepository skillRepository)
     {
       _mapper = mapper;
       _skillRepository = skillRepository;
@@ -47,6 +47,8 @@ namespace Portfolio.Services
         return false;
 
       var skill = _mapper.Map<Skill>(skillDto);
+      skill.CreatedAt = skillExists.CreatedAt;
+      skill.UpdatedAt = DateTime.Now;
 
       await _skillRepository.UpdateAsync(skill);
 
