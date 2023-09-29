@@ -5,6 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Portfolio.API.Auth;
 using Portfolio.API.Middlewares;
+using Portfolio.API.Provider;
 using Portfolio.API.ViewModels;
 using Portfolio.Domain.Entities;
 using Portfolio.Infra.Context;
@@ -23,6 +24,9 @@ builder.Services.AddControllers().AddNewtonsoftJson(
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// Load .env file
+DotEnv.Load();
 
 # region Add Service and Repository of Project
 string connectionString = builder.Configuration.GetConnectionString("Banco");
@@ -65,8 +69,7 @@ builder.Services.AddSingleton(autoMapperConfig.CreateMapper());
 #endregion
 
 #region JWT
-
-var secretKey = builder.Configuration["Jwt:Key"];
+var secretKey = Environment.GetEnvironmentVariable("TOKEN_KEY");
 
 builder.Services.AddAuthentication(
     x =>

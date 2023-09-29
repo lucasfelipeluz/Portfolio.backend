@@ -37,9 +37,12 @@ namespace Portfolio.API.Auth
 
     public string GenerateToken(UserDto userDto)
     {
+      string tokenKey = Environment.GetEnvironmentVariable("TOKEN_KEY");
+      string hoursToExpireToken = Environment.GetEnvironmentVariable("HOURS_TO_EXPIRE");
+
       var tokenHandler = new JwtSecurityTokenHandler();
 
-      var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Key"]);
+      var key = Encoding.ASCII.GetBytes(tokenKey);
 
       var tokenDescriptor = new SecurityTokenDescriptor
       {
@@ -48,7 +51,7 @@ namespace Portfolio.API.Auth
                     new Claim(ClaimTypes.Name, userDto.Name),
                     new Claim(ClaimTypes.Role, userDto.IsActive != null && userDto.IsActive == true ? "active" : "disable")
           }),
-        Expires = DateTime.UtcNow.AddHours(int.Parse(_configuration["Jwt:HoursToExpire"])),
+        Expires = DateTime.UtcNow.AddHours(int.Parse(hoursToExpireToken)),
 
         SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
       };
