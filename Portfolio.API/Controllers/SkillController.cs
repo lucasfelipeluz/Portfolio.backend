@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Portfolio.API.Utils;
@@ -22,6 +23,7 @@ namespace Portfolio.API.Controllers
     }
 
     [HttpGet]
+    [Authorize]
     public async Task<IActionResult> GetAsync()
     {
       try
@@ -38,6 +40,7 @@ namespace Portfolio.API.Controllers
 
     [HttpGet]
     [Route("{id}")]
+    [Authorize]
     public async Task<IActionResult> GetByIdAsync(int id)
     {
       try
@@ -68,6 +71,7 @@ namespace Portfolio.API.Controllers
     }
 
     [HttpPut]
+    [Authorize]
     public async Task<IActionResult> UpdateAsync([FromBody] UpdateSkillViewModel updateSkillViewModel)
     {
       try
@@ -83,6 +87,7 @@ namespace Portfolio.API.Controllers
     }
 
     [HttpDelete("{id}")]
+    [Authorize]
     public async Task<IActionResult> DeleteAsync(int id)
     {
       try

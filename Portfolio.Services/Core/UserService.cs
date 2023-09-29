@@ -30,6 +30,13 @@ namespace Portfolio.Services
       return _mapper.Map<UserDto>(user);
     }
 
+    public async Task<UserDto> GetUserByNickNameAsync(string nickName)
+    {
+      var user = await _userRepository.GetUserByNickName(nickName);
+
+      return _mapper.Map<UserDto>(user);
+    }
+
     public async Task<UserDto> CreateUserAsync(UserDto userDto)
     {
       var user = _mapper.Map<User>(userDto);

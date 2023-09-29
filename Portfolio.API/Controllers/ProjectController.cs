@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Portfolio.API.Utils;
 using Portfolio.API.ViewModels;
@@ -21,6 +22,7 @@ namespace Portfolio.API.Controllers
     }
 
     [HttpGet]
+    [Authorize]
     public async Task<IActionResult> GetAsync()
     {
       try
@@ -37,6 +39,7 @@ namespace Portfolio.API.Controllers
 
     [HttpGet]
     [Route("{id}")]
+    [Authorize]
     public async Task<IActionResult> GetByIdAsync(int id)
     {
       try
@@ -51,21 +54,25 @@ namespace Portfolio.API.Controllers
     }
 
     [HttpPost]
+    [Authorize]
     public async Task<IActionResult> CreateAsync([FromBody] CreateProjectViewModel createProjectViewModel)
     {
       try
       {
         var projectDto = _mapper.Map<ProjectDto>(createProjectViewModel);
         var response = await _projectService.CreateProjectAsync(projectDto);
-        return Ok(response);
+
+        return Created("/api/v1/projects", response);
       }
-      catch (Exception)
+      catch (Exception e)
       {
+        Console.WriteLine(e);
         return StatusCode(StatusCodes.Status500InternalServerError, Responses.InternalServerErrorMessage());
       }
     }
 
     [HttpPut]
+    [Authorize]
     public async Task<IActionResult> UpdateAsync([FromBody] UpdateProjectViewModel updateProjectViewModel)
     {
       try
@@ -81,6 +88,7 @@ namespace Portfolio.API.Controllers
     }
 
     [HttpDelete("{id}")]
+    [Authorize]
     public async Task<IActionResult> DeleteAsync(int id)
     {
       try
