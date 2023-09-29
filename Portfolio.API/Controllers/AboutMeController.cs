@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Portfolio.API.Utils;
 using Portfolio.API.ViewModels;
@@ -21,6 +22,7 @@ namespace Portfolio.API.Controllers
     }
 
     [HttpGet]
+    [Authorize]
     public async Task<IActionResult> GetAsync()
     {
       try
@@ -36,6 +38,7 @@ namespace Portfolio.API.Controllers
     }
 
     [HttpPost]
+    [Authorize]
     public async Task<IActionResult> CreateAsync([FromBody] CreateAboutMeViewModel createAboutMeViewModel)
     {
       try

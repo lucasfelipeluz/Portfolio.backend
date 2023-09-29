@@ -6,6 +6,7 @@ namespace Portfolio.Services.Interfaces
   {
     Task<List<UserDto>> GetAllUsersAsync();
     Task<UserDto> GetUserByIdAsync(int id);
+    Task<UserDto> GetUserByNickNameAsync(string nickName);
     Task<UserDto> CreateUserAsync(UserDto userDto);
     Task<bool> UpdateUserAsync(UserDto userDto);
     Task<bool> DeleteUserAsync(int id);
