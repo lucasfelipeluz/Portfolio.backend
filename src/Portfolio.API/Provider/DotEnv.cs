@@ -4,7 +4,7 @@ namespace Portfolio.API.Provider
   {
     public static void Load()
     {
-      var root = Directory.GetParent("../").ToString();
+      var root = Directory.GetParent("../../").ToString();
 
       var dotEnv = Path.Combine(root, ".env");
 
