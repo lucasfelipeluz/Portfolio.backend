@@ -1,7 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Design;
 using Portfolio.Domain.Entities;
-using Portfolio.Infra.Context;
 
 namespace Portfolio.Infra.Context
 {
@@ -13,7 +11,9 @@ namespace Portfolio.Infra.Context
     public DbSet<AboutMe> AboutMe { get; set; }
     public DbSet<User> Users { get; set; }
     public DbSet<ProjectSkill> ProjectsSkills { get; set; }
-
+    public DbSet<Image> Images { get; set; }
+    public DbSet<SkillImage> SkillsImages { get; set; }
+    public DbSet<ProjectImage> ProjectsImages { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

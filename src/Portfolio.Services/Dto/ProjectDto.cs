@@ -16,5 +16,6 @@ namespace Portfolio.Services.Dto
     public DateTime? StartedAt { get; set; }
     public DateTime? FinishedAt { get; set; }
     public List<Skill> Skills { get; set; }
+    public List<Image> Images { get; set; }
   }
 }

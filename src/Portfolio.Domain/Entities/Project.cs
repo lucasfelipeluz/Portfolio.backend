@@ -1,5 +1,4 @@
-﻿using Microsoft.VisualBasic.CompilerServices;
-namespace Portfolio.Domain.Entities
+﻿namespace Portfolio.Domain.Entities
 {
   public class Project : Base
   {
@@ -14,6 +13,6 @@ namespace Portfolio.Domain.Entities
     public DateTime? StartedAt { get; set; }
     public DateTime? FinishedAt { get; set; }
     public List<Skill> Skills { get; set; }
-
+    public List<Image> Images { get; set; }
   }
 }

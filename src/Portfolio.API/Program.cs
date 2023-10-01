@@ -20,7 +20,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers().AddNewtonsoftJson(
   options => options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
-  );
+);
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -41,12 +41,16 @@ builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
 builder.Services.AddScoped<ISkillRepository, SkillRepository>();
 builder.Services.AddScoped<IAboutMeRepository, AboutMeRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IImageRepository, ImageRepository>();
 
-builder.Services.AddScoped<ITokenManager, TokenManager>();
 builder.Services.AddScoped<IProjectService, ProjectService>();
 builder.Services.AddScoped<ISkillService, SkillService>();
 builder.Services.AddScoped<IAboutMeService, AboutMeService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IImageService, ImageService>();
+
+builder.Services.AddScoped<ITokenManager, TokenManager>();
+builder.Services.AddScoped<IS3Service, S3Service>();
 
 // Add Mapper's Service
 MapperConfiguration autoMapperConfig = new(cfg =>
@@ -64,6 +68,8 @@ MapperConfiguration autoMapperConfig = new(cfg =>
 
   cfg.CreateMap<User, UserDto>().ReverseMap();
   cfg.CreateMap<RegisterViewModel, UserDto>().ReverseMap();
+
+  cfg.CreateMap<Image, ImageDto>().ReverseMap();
 });
 builder.Services.AddSingleton(autoMapperConfig.CreateMapper());
 #endregion

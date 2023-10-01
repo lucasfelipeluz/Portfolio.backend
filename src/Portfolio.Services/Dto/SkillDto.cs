@@ -1,3 +1,5 @@
+using Portfolio.Domain.Entities;
+
 namespace Portfolio.Services.Dto
 {
   public class SkillDto
@@ -12,5 +14,7 @@ namespace Portfolio.Services.Dto
     public bool IsActive { get; private set; }
     public DateTime CreatedAt { get; private set; }
     public DateTime? UpdatedAt { get; private set; }
+    public List<Project> Projects { get; set; }
+    public List<Image> Images { get; set; }
   }
 }

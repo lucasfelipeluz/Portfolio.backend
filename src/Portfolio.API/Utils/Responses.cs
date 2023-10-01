@@ -14,11 +14,12 @@ namespace Portfolio.API.Utils
       };
     }
 
-    public static ResultViewModel DomainErrorMessage(string message) {
+    public static ResultViewModel DomainErrorMessage(string message)
+    {
       return new ResultViewModel { Message = message, Success = false };
     }
 
-    public static ResultViewModel UnauthorizedErrorMessage ()
+    public static ResultViewModel UnauthorizedErrorMessage()
     {
       return new ResultViewModel
       {
@@ -36,5 +37,13 @@ namespace Portfolio.API.Utils
       };
     }
 
+    public static ResultViewModel S3Response(string message, bool success)
+    {
+      return new ResultViewModel
+      {
+        Message = message,
+        Success = success,
+      };
+    }
   }
 }
