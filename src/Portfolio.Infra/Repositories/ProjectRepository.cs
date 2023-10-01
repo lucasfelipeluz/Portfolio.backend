@@ -20,6 +20,7 @@ namespace Portfolio.Infra.Repositories
         .Where(x => x.IsActive == true)
         .OrderByDescending(x => x.ViewPriority)
         .Include(x => x.Skills)
+        .Include(x => x.Images)
         .ToListAsync();
 
       return projects;
