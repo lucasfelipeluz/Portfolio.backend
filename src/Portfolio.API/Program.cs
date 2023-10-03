@@ -30,7 +30,13 @@ builder.Services.AddSwaggerGen();
 DotEnv.Load();
 
 # region Add Service and Repository of Project
-string connectionString = builder.Configuration.GetConnectionString("Banco");
+string dbServer = Environment.GetEnvironmentVariable("DB_SERVER");
+string dbPort = Environment.GetEnvironmentVariable("DB_PORT");
+string dbName = Environment.GetEnvironmentVariable("DB_NAME");
+string dbUser = Environment.GetEnvironmentVariable("DB_USER");
+string dbPassword = Environment.GetEnvironmentVariable("DB_PASSWORD");
+
+string connectionString = $"Server={dbServer};Port={dbPort};Database={dbName};Uid={dbUser};Pwd={dbPassword}";
 builder.Services.AddDbContext<PortfolioContext>(
   options => options.UseMySql(
     connectionString,
