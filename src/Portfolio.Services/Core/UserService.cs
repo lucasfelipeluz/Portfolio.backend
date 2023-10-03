@@ -1,5 +1,6 @@
 using AutoMapper;
 using Portfolio.Domain.Entities;
+using Portfolio.Infra.Cache;
 using Portfolio.Infra.Interfaces;
 using Portfolio.Services.Dto;
 using Portfolio.Services.Interfaces;
@@ -10,31 +11,64 @@ namespace Portfolio.Services
   {
     private readonly IMapper _mapper;
     private readonly IUserRepository _userRepository;
+    private readonly ICachingRepository _cachingRepository;
 
-    public UserService(IMapper mapper, IUserRepository userRepository)
+    public UserService(IMapper mapper, IUserRepository userRepository, ICachingRepository cachingRepository)
     {
       _mapper = mapper;
       _userRepository = userRepository;
+      _cachingRepository = cachingRepository;
     }
 
     public async Task<List<UserDto>> GetAllUsersAsync()
     {
+      var cache = _cachingRepository.Get<List<UserDto>>(this.ToString());
+
+      if (cache != null)
+      {
+        return cache;
+      }
+
       var users = await _userRepository.GetAllAsync();
-      return _mapper.Map<List<UserDto>>(users);
+      var userDto = _mapper.Map<List<UserDto>>(users);
+
+      _cachingRepository.Save(this.ToString(), userDto);
+
+      return userDto;
     }
 
     public async Task<UserDto> GetUserByIdAsync(int id)
     {
-      var user = await _userRepository.GetByIdAsync(id);
+      var cache = _cachingRepository.Get<UserDto>(this.ToString());
 
-      return _mapper.Map<UserDto>(user);
+      if (cache != null)
+      {
+        return cache;
+      }
+
+      var user = await _userRepository.GetByIdAsync(id);
+      var userDto = _mapper.Map<UserDto>(user);
+
+      _cachingRepository.Save($"{this.ToString()}/{id}", userDto);
+
+      return userDto;
     }
 
     public async Task<UserDto> GetUserByNickNameAsync(string nickName)
     {
-      var user = await _userRepository.GetUserByNickName(nickName);
+      var cache = _cachingRepository.Get<UserDto>(this.ToString());
 
-      return _mapper.Map<UserDto>(user);
+      if (cache != null)
+      {
+        return cache;
+      }
+
+      var user = await _userRepository.GetUserByNickName(nickName);
+      var userDto = _mapper.Map<UserDto>(user);
+
+      _cachingRepository.Save($"{this.ToString()}/nickname={nickName}", userDto);
+
+      return userDto;
     }
 
     public async Task<UserDto> CreateUserAsync(UserDto userDto)
@@ -42,6 +76,8 @@ namespace Portfolio.Services
       var user = _mapper.Map<User>(userDto);
 
       await _userRepository.CreateAsync(user);
+
+      _cachingRepository.Remove(this.ToString());
 
       return userDto;
     }
@@ -57,6 +93,8 @@ namespace Portfolio.Services
 
       await _userRepository.UpdateAsync(user);
 
+      _cachingRepository.Remove(this.ToString());
+
       return true;
     }
 
@@ -68,6 +106,8 @@ namespace Portfolio.Services
         return false;
 
       await _userRepository.DeleteAsync(id);
+
+      _cachingRepository.Remove(this.ToString());
 
       return true;
     }

@@ -8,6 +8,7 @@ using Portfolio.API.Middlewares;
 using Portfolio.API.Provider;
 using Portfolio.API.ViewModels;
 using Portfolio.Domain.Entities;
+using Portfolio.Infra.Cache;
 using Portfolio.Infra.Context;
 using Portfolio.Infra.Interfaces;
 using Portfolio.Infra.Repositories;
@@ -37,6 +38,8 @@ builder.Services.AddDbContext<PortfolioContext>(
   )
 );
 
+builder.Services.AddMemoryCache();
+
 builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
 builder.Services.AddScoped<ISkillRepository, SkillRepository>();
 builder.Services.AddScoped<IAboutMeRepository, AboutMeRepository>();
@@ -49,6 +52,7 @@ builder.Services.AddScoped<IAboutMeService, AboutMeService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IImageService, ImageService>();
 
+builder.Services.AddScoped<ICachingRepository, CachingRepository>();
 builder.Services.AddScoped<ITokenManager, TokenManager>();
 builder.Services.AddScoped<IS3Service, S3Service>();
 

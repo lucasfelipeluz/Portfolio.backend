@@ -1,5 +1,6 @@
 using AutoMapper;
 using Portfolio.Domain.Entities;
+using Portfolio.Infra.Cache;
 using Portfolio.Infra.Interfaces;
 using Portfolio.Services.Dto;
 using Portfolio.Services.Interfaces;
@@ -10,17 +11,30 @@ namespace Portfolio.Services
   {
     private readonly IMapper _mapper;
     private readonly IAboutMeRepository _aboutMeRepository;
+    private readonly ICachingRepository _cachingRepository;
 
-    public AboutMeService(IMapper mapper, IAboutMeRepository aboutMeRepository)
+    public AboutMeService(IMapper mapper, IAboutMeRepository aboutMeRepository, ICachingRepository cachingRepository)
     {
       _mapper = mapper;
       _aboutMeRepository = aboutMeRepository;
+      _cachingRepository = cachingRepository;
     }
 
     public async Task<AboutMeDto> GetAboutMeAsync()
     {
+      var cache = _cachingRepository.Get<AboutMeDto>(this.ToString());
+
+      if (cache != null)
+      {
+        return cache;
+      }
+
       var aboutMe = await _aboutMeRepository.GetAboutMeAsync();
-      return _mapper.Map<AboutMeDto>(aboutMe);
+      var aboutMeDto = _mapper.Map<AboutMeDto>(aboutMe);
+
+      _cachingRepository.Save(this.ToString(), aboutMeDto);
+
+      return aboutMeDto;
     }
 
     public async Task<bool> UpdateAboutMeAsync(AboutMeDto aboutMeDto)
@@ -38,6 +52,9 @@ namespace Portfolio.Services
 
       var aboutMeMap = _mapper.Map<AboutMe>(aboutMeDto);
       var result = await _aboutMeRepository.UpdateAboutMeAsync(aboutMeMap);
+
+      _cachingRepository.Remove(this.ToString());
+
       return result;
     }
   }
