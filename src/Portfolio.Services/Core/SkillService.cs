@@ -1,5 +1,6 @@
 using AutoMapper;
 using Portfolio.Domain.Entities;
+using Portfolio.Infra.Cache;
 using Portfolio.Infra.Interfaces;
 using Portfolio.Services.Dto;
 using Portfolio.Services.Interfaces;
@@ -10,24 +11,47 @@ namespace Portfolio.Services
   {
     private readonly IMapper _mapper;
     private readonly ISkillRepository _skillRepository;
+    private readonly ICachingRepository _cachingRepository;
 
-    public SkillService(IMapper mapper, ISkillRepository skillRepository)
+    public SkillService(IMapper mapper, ISkillRepository skillRepository, ICachingRepository cachingRepository)
     {
       _mapper = mapper;
       _skillRepository = skillRepository;
+      _cachingRepository = cachingRepository;
     }
 
     public async Task<List<SkillDto>> GetAllSkillsAsync()
     {
+      var cache = _cachingRepository.Get<List<SkillDto>>(this.ToString());
+
+      if (cache != null)
+      {
+        return cache;
+      }
+
       var skills = await _skillRepository.GetActivesSkills();
-      return _mapper.Map<List<SkillDto>>(skills);
+      var skillDto = _mapper.Map<List<SkillDto>>(skills);
+
+      _cachingRepository.Save(this.ToString(), skillDto);
+
+      return skillDto;
     }
 
     public async Task<SkillDto> GetSkillByIdAsync(int id)
     {
-      var skill = await _skillRepository.GetByIdAsync(id);
+      var cache = _cachingRepository.Get<SkillDto>(this.ToString());
 
-      return _mapper.Map<SkillDto>(skill);
+      if (cache != null)
+      {
+        return cache;
+      }
+
+      var skill = await _skillRepository.GetByIdAsync(id);
+      var skillDto = _mapper.Map<SkillDto>(skill);
+
+      _cachingRepository.Save(this.ToString(), skillDto);
+
+      return skillDto;
     }
 
     public async Task<SkillDto> CreateSkillAsync(SkillDto skillDto)
@@ -35,6 +59,8 @@ namespace Portfolio.Services
       var skill = _mapper.Map<Skill>(skillDto);
 
       await _skillRepository.CreateAsync(skill);
+
+      _cachingRepository.Remove(this.ToString());
 
       return skillDto;
     }
@@ -52,6 +78,8 @@ namespace Portfolio.Services
 
       await _skillRepository.UpdateAsync(skill);
 
+      _cachingRepository.Remove(this.ToString());
+
       return true;
     }
 
@@ -63,6 +91,8 @@ namespace Portfolio.Services
         return false;
 
       await _skillRepository.DeleteSkill(id);
+
+      _cachingRepository.Remove(this.ToString());
 
       return true;
     }
