@@ -66,10 +66,12 @@ builder.Services.AddScoped<IS3Service, S3Service>();
 MapperConfiguration autoMapperConfig = new(cfg =>
 {
   cfg.CreateMap<Project, ProjectDto>().ReverseMap();
+  cfg.CreateMap<Project, ProjectWithoutIncludeDto>().ReverseMap();
   cfg.CreateMap<CreateProjectViewModel, ProjectDto>().ReverseMap();
   cfg.CreateMap<UpdateProjectViewModel, ProjectDto>().ReverseMap();
 
   cfg.CreateMap<Skill, SkillDto>().ReverseMap();
+  cfg.CreateMap<Skill, SkillWithoutIncludeDto>().ReverseMap();
   cfg.CreateMap<CreateSkillViewModel, SkillDto>().ReverseMap();
   cfg.CreateMap<UpdateSkillViewModel, SkillDto>().ReverseMap();
 
@@ -80,6 +82,7 @@ MapperConfiguration autoMapperConfig = new(cfg =>
   cfg.CreateMap<RegisterViewModel, UserDto>().ReverseMap();
 
   cfg.CreateMap<Image, ImageDto>().ReverseMap();
+  cfg.CreateMap<Image, ImageWithoutIncludeDto>().ReverseMap();
 });
 builder.Services.AddSingleton(autoMapperConfig.CreateMapper());
 #endregion

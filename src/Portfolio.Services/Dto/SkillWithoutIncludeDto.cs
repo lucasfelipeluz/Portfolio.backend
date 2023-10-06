@@ -2,7 +2,7 @@ using Portfolio.Domain.Entities;
 
 namespace Portfolio.Services.Dto
 {
-  public class SkillDto
+  public class SkillWithoutIncludeDto
   {
     public int Id { get; set; }
     public string Title { get; private set; } = string.Empty;
@@ -14,7 +14,5 @@ namespace Portfolio.Services.Dto
     public bool IsActive { get; private set; }
     public DateTime CreatedAt { get; private set; }
     public DateTime? UpdatedAt { get; private set; }
-    public List<ProjectWithoutIncludeDto> Projects { get; set; }
-    public List<ImageWithoutIncludeDto> Images { get; set; }
   }
 }
