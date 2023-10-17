@@ -51,12 +51,14 @@ builder.Services.AddScoped<ISkillRepository, SkillRepository>();
 builder.Services.AddScoped<IAboutMeRepository, AboutMeRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IImageRepository, ImageRepository>();
+builder.Services.AddScoped<IProjectSkillRepository, ProjectSkillRepository>();
 
 builder.Services.AddScoped<IProjectService, ProjectService>();
 builder.Services.AddScoped<ISkillService, SkillService>();
 builder.Services.AddScoped<IAboutMeService, AboutMeService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IImageService, ImageService>();
+builder.Services.AddScoped<IProjectSkillService, ProjectSkillService>();
 
 builder.Services.AddScoped<ICachingRepository, CachingRepository>();
 builder.Services.AddScoped<ITokenManager, TokenManager>();
@@ -83,6 +85,9 @@ MapperConfiguration autoMapperConfig = new(cfg =>
 
   cfg.CreateMap<Image, ImageDto>().ReverseMap();
   cfg.CreateMap<Image, ImageWithoutIncludeDto>().ReverseMap();
+
+  cfg.CreateMap<ProjectSkill, ProjectSkillDto>().ReverseMap();
+  cfg.CreateMap<CreateProjectSkillViewModel, ProjectSkillDto>().ReverseMap();
 });
 builder.Services.AddSingleton(autoMapperConfig.CreateMapper());
 #endregion
