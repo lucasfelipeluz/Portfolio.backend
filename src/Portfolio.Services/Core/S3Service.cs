@@ -15,6 +15,19 @@ namespace Portfolio.Services
 
       try
       {
+        // If the connection to AWS is false, 
+        // we will send a false response and
+        // dont send image to S3
+        string statusConnectAWS = Environment.GetEnvironmentVariable("AWS_STATUS");
+
+        if (statusConnectAWS == "false")
+        {
+          response.StatusCode = 200;
+          response.Message = $"{s3Obj.Name} has been uploaded successfully!";
+
+          return response;
+        }
+
         var awsCredentials = new AwsCredentials()
         {
           AwsKey = Environment.GetEnvironmentVariable("AWS_ACESS_KEY"),
