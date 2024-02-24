@@ -19,6 +19,8 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+bool isDevelopmentMode = Environment.GetEnvironmentVariable("SERVER_MODE") == "development";
+
 builder.Services.AddControllers().AddNewtonsoftJson(
   options => options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
 );
@@ -120,7 +122,6 @@ builder.Services.AddAuthentication(
 #endregion
 
 #region Swagger
-
 builder.Services.AddSwaggerGen(c =>
 {
   c.SwaggerDoc("v1", new OpenApiInfo
@@ -163,7 +164,7 @@ builder.Services.AddSwaggerGen(c =>
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+if (isDevelopmentMode)
 {
   app.UseSwagger();
   app.UseSwaggerUI();
