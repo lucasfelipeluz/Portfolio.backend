@@ -19,6 +19,8 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+bool isDevelopmentMode = Environment.GetEnvironmentVariable("SERVER_MODE") == "development";
+
 builder.Services.AddControllers().AddNewtonsoftJson(
   options => options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
 );
@@ -30,7 +32,13 @@ builder.Services.AddSwaggerGen();
 DotEnv.Load();
 
 # region Add Service and Repository of Project
-string connectionString = builder.Configuration.GetConnectionString("Banco");
+string dbServer = Environment.GetEnvironmentVariable("DB_SERVER");
+string dbPort = Environment.GetEnvironmentVariable("DB_PORT");
+string dbName = Environment.GetEnvironmentVariable("DB_NAME");
+string dbUser = Environment.GetEnvironmentVariable("DB_USER");
+string dbPassword = Environment.GetEnvironmentVariable("DB_PASSWORD");
+
+string connectionString = $"Server={dbServer};Port={dbPort};Database={dbName};Uid={dbUser};Pwd={dbPassword}";
 builder.Services.AddDbContext<PortfolioContext>(
   options => options.UseMySql(
     connectionString,
@@ -45,12 +53,14 @@ builder.Services.AddScoped<ISkillRepository, SkillRepository>();
 builder.Services.AddScoped<IAboutMeRepository, AboutMeRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IImageRepository, ImageRepository>();
+builder.Services.AddScoped<IProjectSkillRepository, ProjectSkillRepository>();
 
 builder.Services.AddScoped<IProjectService, ProjectService>();
 builder.Services.AddScoped<ISkillService, SkillService>();
 builder.Services.AddScoped<IAboutMeService, AboutMeService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IImageService, ImageService>();
+builder.Services.AddScoped<IProjectSkillService, ProjectSkillService>();
 
 builder.Services.AddScoped<ICachingRepository, CachingRepository>();
 builder.Services.AddScoped<ITokenManager, TokenManager>();
@@ -60,10 +70,12 @@ builder.Services.AddScoped<IS3Service, S3Service>();
 MapperConfiguration autoMapperConfig = new(cfg =>
 {
   cfg.CreateMap<Project, ProjectDto>().ReverseMap();
+  cfg.CreateMap<Project, ProjectWithoutIncludeDto>().ReverseMap();
   cfg.CreateMap<CreateProjectViewModel, ProjectDto>().ReverseMap();
   cfg.CreateMap<UpdateProjectViewModel, ProjectDto>().ReverseMap();
 
   cfg.CreateMap<Skill, SkillDto>().ReverseMap();
+  cfg.CreateMap<Skill, SkillWithoutIncludeDto>().ReverseMap();
   cfg.CreateMap<CreateSkillViewModel, SkillDto>().ReverseMap();
   cfg.CreateMap<UpdateSkillViewModel, SkillDto>().ReverseMap();
 
@@ -74,6 +86,10 @@ MapperConfiguration autoMapperConfig = new(cfg =>
   cfg.CreateMap<RegisterViewModel, UserDto>().ReverseMap();
 
   cfg.CreateMap<Image, ImageDto>().ReverseMap();
+  cfg.CreateMap<Image, ImageWithoutIncludeDto>().ReverseMap();
+
+  cfg.CreateMap<ProjectSkill, ProjectSkillDto>().ReverseMap();
+  cfg.CreateMap<CreateProjectSkillViewModel, ProjectSkillDto>().ReverseMap();
 });
 builder.Services.AddSingleton(autoMapperConfig.CreateMapper());
 #endregion
@@ -106,7 +122,6 @@ builder.Services.AddAuthentication(
 #endregion
 
 #region Swagger
-
 builder.Services.AddSwaggerGen(c =>
 {
   c.SwaggerDoc("v1", new OpenApiInfo
@@ -149,7 +164,7 @@ builder.Services.AddSwaggerGen(c =>
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+if (isDevelopmentMode)
 {
   app.UseSwagger();
   app.UseSwaggerUI();
