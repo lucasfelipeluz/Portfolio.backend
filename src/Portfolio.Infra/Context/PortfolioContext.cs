@@ -14,6 +14,7 @@ namespace Portfolio.Infra.Context
     public DbSet<Image> Images { get; set; }
     public DbSet<SkillImage> SkillsImages { get; set; }
     public DbSet<ProjectImage> ProjectsImages { get; set; }
+    public DbSet<Services> Services { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
