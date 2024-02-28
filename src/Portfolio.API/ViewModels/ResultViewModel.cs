@@ -1,8 +1,7 @@
-﻿namespace Portfolio.API.ViewModels
+﻿namespace Portfolio.API.ViewModels;
+
+public class ResultViewModel
 {
-  public class ResultViewModel
-  {
-    public string Message { get; set; }
-    public bool Success { get; set; }
-  }
+	public string Message { get; set; }
+	public bool Success { get; set; }
 }

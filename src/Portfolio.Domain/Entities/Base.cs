@@ -1,7 +1,6 @@
-﻿namespace Portfolio.Domain.Entities
+﻿namespace Portfolio.Domain.Entities;
+
+public abstract class Base
 {
-  public abstract class Base
-  {
-    public int Id { get; set; }
-  }
+	public int Id { get; set; }
 }

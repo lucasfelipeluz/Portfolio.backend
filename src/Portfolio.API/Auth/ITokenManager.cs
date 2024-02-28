@@ -1,11 +1,10 @@
 using Portfolio.Services.Dto;
 
-namespace Portfolio.API.Auth
+namespace Portfolio.API.Auth;
+
+public interface ITokenManager
 {
-  public interface ITokenManager
-  {
-    string HashPassword(string value);
-    bool ComparePasswords(string password, string value);
-    string GenerateToken(UserDto userDto);
-  }
+	string HashPassword(string value);
+	bool ComparePasswords(string password, string value);
+	string GenerateToken(UserDto userDto);
 }

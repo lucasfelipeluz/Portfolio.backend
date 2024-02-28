@@ -1,8 +1,7 @@
-﻿namespace Portfolio.Services.Utils
+﻿namespace Portfolio.Services.Utils;
+
+public class AwsCredentials
 {
-  public class AwsCredentials
-  {
-    public string AwsKey { get; set; }
-    public string AwsSecretKey { get; set; }
-  }
+	public string AwsKey { get; set; }
+	public string AwsSecretKey { get; set; }
 }
