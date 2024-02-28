@@ -3,43 +3,41 @@ using Portfolio.Domain.Entities;
 using Portfolio.Infra.Context;
 using Portfolio.Infra.Interfaces;
 
-namespace Portfolio.Infra.Repositories
+namespace Portfolio.Infra.Repositories;
+
+public class SkillRepository : BaseRepository<Skill>, ISkillRepository
 {
-  public class SkillRepository : BaseRepository<Skill>, ISkillRepository
-  {
-    private readonly PortfolioContext _context;
-    public SkillRepository(PortfolioContext context) : base(context)
-    {
-      _context = context;
-    }
+	private readonly PortfolioContext _context;
 
-    public async Task<List<Skill>> GetActivesSkills()
-    {
-      var skills = await _context.Skills
-        .AsNoTracking()
-        .Where(x => x.IsActive == true)
-        .OrderByDescending(x => x.ViewPriority)
-        .Include(x => x.Projects)
-        .ToListAsync();
+	public SkillRepository(PortfolioContext context)
+		: base(context)
+	{
+		_context = context;
+	}
 
-      return skills;
-    }
+	public async Task<List<Skill>> GetActivesSkills()
+	{
+		var skills = await _context
+			.Skills.AsNoTracking()
+			.Where(x => x.IsActive == true)
+			.OrderByDescending(x => x.ViewPriority)
+			.Include(x => x.Projects)
+			.ToListAsync();
 
-    public async Task<bool> DeleteSkill(int id)
-    {
-      var skill = await _context.Skills
-        .AsNoTracking()
-        .Where(x => x.Id == id)
-        .FirstAsync();
+		return skills;
+	}
 
-      skill.IsActive = false;
-      skill.UpdatedAt = DateTime.Now;
+	public async Task<bool> DeleteSkill(int id)
+	{
+		var skill = await _context.Skills.AsNoTracking().Where(x => x.Id == id).FirstAsync();
 
-      _context.Entry(skill).State = EntityState.Modified;
+		skill.IsActive = false;
+		skill.UpdatedAt = DateTime.Now;
 
-      await _context.SaveChangesAsync();
+		_context.Entry(skill).State = EntityState.Modified;
 
-      return true;
-    }
-  }
+		await _context.SaveChangesAsync();
+
+		return true;
+	}
 }

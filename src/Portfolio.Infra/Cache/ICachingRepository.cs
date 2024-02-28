@@ -1,9 +1,8 @@
-﻿namespace Portfolio.Infra.Cache
+﻿namespace Portfolio.Infra.Cache;
+
+public interface ICachingRepository
 {
-  public interface ICachingRepository
-  {
-    T Get<T>(string key);
-    void Save<T> (string key, T value);
-    void Remove(string key);
-  }
+	T Get<T>(string key);
+	void Save<T>(string key, T value);
+	void Remove(string key);
 }

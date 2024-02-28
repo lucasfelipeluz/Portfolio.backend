@@ -1,10 +1,9 @@
 using Portfolio.Domain.Entities;
 
-namespace Portfolio.Infra.Interfaces
+namespace Portfolio.Infra.Interfaces;
+
+public interface IImageRepository : IBaseRepository<Image>
 {
-  public interface IImageRepository : IBaseRepository<Image>
-  {
-    Task AddRelationshipWithProject(ProjectImage projectImage);
-    Task AddRelationshipWithSkill(SkillImage skillImage);
-  }
+	Task AddRelationshipWithProject(ProjectImage projectImage);
+	Task AddRelationshipWithSkill(SkillImage skillImage);
 }

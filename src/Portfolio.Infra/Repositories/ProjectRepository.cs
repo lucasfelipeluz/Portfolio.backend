@@ -3,56 +3,53 @@ using Portfolio.Domain.Entities;
 using Portfolio.Infra.Context;
 using Portfolio.Infra.Interfaces;
 
-namespace Portfolio.Infra.Repositories
+namespace Portfolio.Infra.Repositories;
+
+public class ProjectRepository : BaseRepository<Project>, IProjectRepository
 {
-  public class ProjectRepository : BaseRepository<Project>, IProjectRepository
-  {
-    private readonly PortfolioContext _context;
-    public ProjectRepository(PortfolioContext context) : base(context)
-    {
-      _context = context;
-    }
+	private readonly PortfolioContext _context;
 
-    public async Task<List<Project>> GetActivesProjects()
-    {
-      var projects = await _context.Projects
-        .AsNoTracking()
-        .Where(x => x.IsActive == true)
-        .OrderByDescending(x => x.ViewPriority)
-        .Include(x => x.Skills)
-        .Include(x => x.Images)
-        .ToListAsync();
+	public ProjectRepository(PortfolioContext context)
+		: base(context)
+	{
+		_context = context;
+	}
 
-      return projects;
-    }
+	public async Task<List<Project>> GetActivesProjects()
+	{
+		var projects = await _context
+			.Projects.AsNoTracking()
+			.Where(x => x.IsActive == true)
+			.OrderByDescending(x => x.ViewPriority)
+			.Include(x => x.Skills)
+			.Include(x => x.Images)
+			.ToListAsync();
 
-    public async Task<Project> GetProjectById(int Id)
-    {
-      var project = await _context
-        .Projects
-        .Include(x => x.Skills)
-        .AsNoTracking()
-        .Where(x => x.Id == Id)
-        .ToListAsync();
+		return projects;
+	}
 
-      return project.First();
-    }
+	public async Task<Project> GetProjectById(int Id)
+	{
+		var project = await _context
+			.Projects.Include(x => x.Skills)
+			.AsNoTracking()
+			.Where(x => x.Id == Id)
+			.ToListAsync();
 
-    public async Task<bool> DeleteProject(int id)
-    {
-      var project = await _context.Projects
-        .AsNoTracking()
-        .Where(x => x.Id == id)
-        .FirstAsync();
+		return project.First();
+	}
 
-      project.IsActive = false;
-      project.UpdatedAt = DateTime.Now;
+	public async Task<bool> DeleteProject(int id)
+	{
+		var project = await _context.Projects.AsNoTracking().Where(x => x.Id == id).FirstAsync();
 
-      _context.Entry(project).State = EntityState.Modified;
+		project.IsActive = false;
+		project.UpdatedAt = DateTime.Now;
 
-      await _context.SaveChangesAsync();
+		_context.Entry(project).State = EntityState.Modified;
 
-      return true;
-    }
-  }
+		await _context.SaveChangesAsync();
+
+		return true;
+	}
 }

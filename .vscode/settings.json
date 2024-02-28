@@ -1,2 +1,8 @@
 {
+	"terminal.integrated.defaultProfile.windows": "Command Prompt",
+	"editor.tabSize": 2,
+	"editor.codeActionsOnSave": {
+		"source.fixAll.eslint": "explicit"
+	},
+	"editor.defaultFormatter": "csharpier.csharpier-vscode"
 }

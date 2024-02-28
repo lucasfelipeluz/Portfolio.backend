@@ -3,29 +3,27 @@ using Portfolio.Domain.Entities;
 using Portfolio.Infra.Context;
 using Portfolio.Infra.Interfaces;
 
-namespace Portfolio.Infra.Repositories
+namespace Portfolio.Infra.Repositories;
+
+public class UserRepository : BaseRepository<User>, IUserRepository
 {
-  public class UserRepository : BaseRepository<User>, IUserRepository
-  {
-    private readonly PortfolioContext _context;
-    public UserRepository(PortfolioContext context) : base(context)
-    {
-      _context = context;
-    }
+	private readonly PortfolioContext _context;
 
-    public async Task<User> GetUserByNickName(string nickName)
-    {
-      var user = await _context.Users
-        .AsNoTracking()
-        .Where(x => x.NickName == nickName)
-        .ToListAsync();
+	public UserRepository(PortfolioContext context)
+		: base(context)
+	{
+		_context = context;
+	}
 
-      if (user == null)
-      {
-        return null;
-      }
+	public async Task<User> GetUserByNickName(string nickName)
+	{
+		var user = await _context.Users.AsNoTracking().Where(x => x.NickName == nickName).ToListAsync();
 
-      return user.FirstOrDefault();
-    }
-  }
+		if (user == null)
+		{
+			return null;
+		}
+
+		return user.FirstOrDefault();
+	}
 }

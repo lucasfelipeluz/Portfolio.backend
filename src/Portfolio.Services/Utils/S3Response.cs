@@ -1,8 +1,7 @@
-﻿namespace Portfolio.Services.Utils
+﻿namespace Portfolio.Services.Utils;
+
+public class S3Response
 {
-  public class S3Response
-  {
-    public int StatusCode { get; set; }
-    public string Message { get; set; }
-  }
+	public int StatusCode { get; set; }
+	public string Message { get; set; }
 }

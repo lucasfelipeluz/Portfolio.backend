@@ -1,29 +1,38 @@
 using AutoMapper;
 using Portfolio.Domain.Entities;
-using Portfolio.Infra.Interfaces;
 using Portfolio.Infra.Cache;
+using Portfolio.Infra.Interfaces;
 using Portfolio.Services.Dto;
 using Portfolio.Services.Interfaces;
 
-namespace Portfolio.Services
+namespace Portfolio.Services;
+
+public class ProjectSkillService : IProjectSkillService
 {
-  public class ProjectSkillService : IProjectSkillService
-  {
-    private readonly IMapper _mapper;
-    private readonly IProjectSkillRepository _projectSkillRepository;
-    private readonly ICachingRepository _cachingRepository;
+	private readonly IMapper _mapper;
+	private readonly IProjectSkillRepository _projectSkillRepository;
+	private readonly ICachingRepository _cachingRepository;
 
-    public async Task<ProjectSkillDto> CreateProjectSkillAsync(ProjectSkillDto entity)
-    {
-      var projectSkill = _mapper.Map<ProjectSkill>(entity);
+	public ProjectSkillService(
+		IMapper mapper,
+		IProjectSkillRepository projectSkillRepository,
+		ICachingRepository cachingRepository
+	)
+	{
+		_mapper = mapper;
+		_projectSkillRepository = projectSkillRepository;
+		_cachingRepository = cachingRepository;
+	}
 
-      await _projectSkillRepository.CreateAsync(projectSkill);
+	public async Task<ProjectSkillDto> CreateProjectSkillAsync(ProjectSkillDto entity)
+	{
+		var projectSkill = _mapper.Map<ProjectSkill>(entity);
 
-      _cachingRepository.Remove("Projects");
-      _cachingRepository.Remove("Skills");
+		await _projectSkillRepository.CreateAsync(projectSkill);
 
-      return entity;
-    }
+		_cachingRepository.Remove("Projects");
+		_cachingRepository.Remove("Skills");
 
-  }
+		return entity;
+	}
 }

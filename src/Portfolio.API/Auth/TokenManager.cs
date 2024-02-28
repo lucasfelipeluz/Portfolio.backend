@@ -4,61 +4,70 @@ using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using Portfolio.Services.Dto;
 
-namespace Portfolio.API.Auth
+namespace Portfolio.API.Auth;
+
+public class TokenManager : ITokenManager
 {
-  public class TokenManager : ITokenManager
-  {
-    private readonly IConfiguration _configuration;
+	private readonly IConfiguration _configuration;
 
-    public TokenManager(IConfiguration configuration)
-    {
-      _configuration = configuration;
-    }
+	public TokenManager(IConfiguration configuration)
+	{
+		_configuration = configuration;
+	}
 
-    
-    public string HashPassword(string value)
-    {
-      if (string.IsNullOrWhiteSpace(value)) return null;
+	public string HashPassword(string value)
+	{
+		if (string.IsNullOrWhiteSpace(value))
+			return null;
 
-      var hashedData = BCrypt.Net.BCrypt.HashPassword(value);
+		var hashedData = BCrypt.Net.BCrypt.HashPassword(value);
 
-      return hashedData;
-    }
+		return hashedData;
+	}
 
-    public bool ComparePasswords(string password, string value)
-    {
-      if (string.IsNullOrWhiteSpace(password)) return false;
-      if (string.IsNullOrWhiteSpace(value)) return false;
+	public bool ComparePasswords(string password, string value)
+	{
+		if (string.IsNullOrWhiteSpace(password))
+			return false;
+		if (string.IsNullOrWhiteSpace(value))
+			return false;
 
-      var isValid = BCrypt.Net.BCrypt.Verify(password, value);
+		var isValid = BCrypt.Net.BCrypt.Verify(password, value);
 
-      return isValid;
-    }
+		return isValid;
+	}
 
-    public string GenerateToken(UserDto userDto)
-    {
-      string tokenKey = Environment.GetEnvironmentVariable("TOKEN_KEY");
-      string hoursToExpireToken = Environment.GetEnvironmentVariable("HOURS_TO_EXPIRE");
+	public string GenerateToken(UserDto userDto)
+	{
+		string tokenKey = Environment.GetEnvironmentVariable("TOKEN_KEY");
+		string hoursToExpireToken = Environment.GetEnvironmentVariable("HOURS_TO_EXPIRE");
 
-      var tokenHandler = new JwtSecurityTokenHandler();
+		var tokenHandler = new JwtSecurityTokenHandler();
 
-      var key = Encoding.ASCII.GetBytes(tokenKey);
+		var key = Encoding.ASCII.GetBytes(tokenKey);
 
-      var tokenDescriptor = new SecurityTokenDescriptor
-      {
-        Subject = new ClaimsIdentity(new Claim[]
-          {
-                    new Claim(ClaimTypes.Name, userDto.Name),
-                    new Claim(ClaimTypes.Role, userDto.IsActive != null && userDto.IsActive == true ? "active" : "disable")
-          }),
-        Expires = DateTime.UtcNow.AddHours(int.Parse(hoursToExpireToken)),
+		var tokenDescriptor = new SecurityTokenDescriptor
+		{
+			Subject = new ClaimsIdentity(
+				new Claim[]
+				{
+					new Claim(ClaimTypes.Name, userDto.Name),
+					new Claim(
+						ClaimTypes.Role,
+						userDto.IsActive != null && userDto.IsActive == true ? "active" : "disable"
+					)
+				}
+			),
+			Expires = DateTime.UtcNow.AddHours(int.Parse(hoursToExpireToken)),
 
-        SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-      };
+			SigningCredentials = new SigningCredentials(
+				new SymmetricSecurityKey(key),
+				SecurityAlgorithms.HmacSha256Signature
+			)
+		};
 
-      var token = tokenHandler.CreateToken(tokenDescriptor);
+		var token = tokenHandler.CreateToken(tokenDescriptor);
 
-      return tokenHandler.WriteToken(token);
-    }
-  }
+		return tokenHandler.WriteToken(token);
+	}
 }

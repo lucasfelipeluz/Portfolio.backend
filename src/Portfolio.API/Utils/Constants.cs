@@ -1,8 +1,7 @@
-namespace Portfolio.API.Utils
+namespace Portfolio.API.Utils;
+
+public class Constants
 {
-  public class Constants
-  {
-    public static string AcessKey;
-    public static string SecretKey;
-  }
+	public static string AcessKey;
+	public static string SecretKey;
 }

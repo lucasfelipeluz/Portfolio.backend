@@ -1,9 +1,8 @@
 using Portfolio.Services.Dto;
 
-namespace Portfolio.Services.Interfaces
+namespace Portfolio.Services.Interfaces;
+
+public interface IProjectSkillService
 {
-  public interface IProjectSkillService
-  {
-    Task<ProjectSkillDto> CreateProjectSkillAsync(ProjectSkillDto entity);
-  }
+	Task<ProjectSkillDto> CreateProjectSkillAsync(ProjectSkillDto entity);
 }
