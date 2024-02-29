@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Caching.Memory;
+﻿using Portfolio.Core.Enums;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace Portfolio.Infra.Cache;
 
@@ -11,19 +12,19 @@ public class CachingRepository : ICachingRepository
 		_memoryCache = memoryCache;
 	}
 
-	public T Get<T>(string key)
+	public T Get<T>(CacheCode cacheCode)
 	{
-		_memoryCache.TryGetValue(key, out T value);
+		_memoryCache.TryGetValue(cacheCode, out T value);
 
 		return value;
 	}
 
-	public void Remove(string key)
+	public void Remove(CacheCode cacheCode)
 	{
-		_memoryCache.Remove(key);
+		_memoryCache.Remove(cacheCode);
 	}
 
-	public void Save<T>(string key, T value)
+	public void Save<T>(CacheCode cacheCode, T value)
 	{
 		var memoryCacheEntryOptions = new MemoryCacheEntryOptions
 		{
@@ -31,6 +32,6 @@ public class CachingRepository : ICachingRepository
 			SlidingExpiration = TimeSpan.FromDays(3),
 		};
 
-		_memoryCache.Set(key, value, memoryCacheEntryOptions);
+		_memoryCache.Set(cacheCode, value, memoryCacheEntryOptions);
 	}
 }

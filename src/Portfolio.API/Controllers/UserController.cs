@@ -40,7 +40,7 @@ public class UserController : ControllerBase
 
 			await _userService.CreateUserAsync(user);
 
-			return Ok(hashedPassword);
+			return Created("api/register", Responses.SuccessMessage(hashedPassword));
 		}
 		catch (Exception)
 		{
@@ -64,7 +64,7 @@ public class UserController : ControllerBase
 			if (!isPasswordCorrect)
 				return BadRequest("Password is wrong!");
 
-			String token = _tokenManager.GenerateToken(user);
+			var token = _tokenManager.GenerateToken(user);
 			return Ok(new ResultViewModel { Message = token, Success = true });
 		}
 		catch (Exception e)

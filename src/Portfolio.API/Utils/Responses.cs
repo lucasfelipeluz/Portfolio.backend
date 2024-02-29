@@ -9,8 +9,18 @@ public class Responses
 		return new ResultViewModel
 		{
 			Message = "Ocorreu um erro na aplicação, por favor tente novamente.",
-			Success = true,
+			Success = false,
 		};
+	}
+
+	public static ResultViewModel SuccessMessage(string message)
+	{
+		return new ResultViewModel { Message = message, Success = true };
+	}
+
+	public static ResultViewModel NotFoundErrorMessage()
+	{
+		return new ResultViewModel { Message = "Registro não encontrado!", Success = false };
 	}
 
 	public static ResultViewModel DomainErrorMessage(string message)

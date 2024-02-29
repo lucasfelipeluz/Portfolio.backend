@@ -68,9 +68,8 @@ public class FilesController : ControllerBase
 
 			return Ok(new ResultViewModel { Message = result.Message, Success = true });
 		}
-		catch (Exception e)
+		catch (Exception)
 		{
-			Console.WriteLine(e);
 			return StatusCode(StatusCodes.Status500InternalServerError, Responses.InternalServerErrorMessage());
 		}
 	}

@@ -4,5 +4,5 @@ namespace Portfolio.Services.Interfaces;
 
 public interface IProjectSkillService
 {
-	Task<ProjectSkillDto> CreateProjectSkillAsync(ProjectSkillDto entity);
+	Task<bool> CreateProjectSkillAsync(ProjectSkillDto entity);
 }

@@ -1,4 +1,5 @@
 using AutoMapper;
+using Portfolio.Core.Enums;
 using Portfolio.Domain.Entities;
 using Portfolio.Infra.Cache;
 using Portfolio.Infra.Interfaces;
@@ -22,9 +23,9 @@ public class ActivityService : IActivityService
 
 	public async Task<List<ActivityDto>> GetAllActivitiesAsync()
 	{
-		var cache = _cachingRepository.Get<List<ActivityDto>>(this.ToString());
+		var cache = _cachingRepository.Get<List<ActivityDto>>(CacheCode.Activity);
 
-		if (cache != null)
+		if (cache is not null)
 		{
 			return cache;
 		}
@@ -32,37 +33,45 @@ public class ActivityService : IActivityService
 		var activities = await _activityRepository.GetAllAsync();
 		var activitiesDto = _mapper.Map<List<ActivityDto>>(activities);
 
-		_cachingRepository.Save(this.ToString(), activitiesDto);
+		_cachingRepository.Save(CacheCode.Activity, activitiesDto);
 
 		return activitiesDto;
 	}
 
 	public async Task<ActivityDto> GetActivityByIdAsync(int id)
 	{
-		var cache = _cachingRepository.Get<ActivityDto>($"{this.ToString()}/{id}");
+		var cache = _cachingRepository.Get<List<ActivityDto>>(CacheCode.Activity);
 
-		if (cache != null)
+		if (cache is not null)
 		{
-			return cache;
+			var activityCache = cache.Find(x => x.Id == id);
+
+			if (activityCache is not null)
+			{
+				return activityCache;
+			}
 		}
 
 		var activity = await _activityRepository.GetByIdAsync(id);
 		var activityDto = _mapper.Map<ActivityDto>(activity);
 
-		_cachingRepository.Save($"{this.ToString()}/{id}", activityDto);
+		_cachingRepository.Save(CacheCode.Activity, activityDto);
 
 		return activityDto;
 	}
 
-	public async Task<ActivityDto> CreateActivityAsync(ActivityDto entity)
+	public async Task<bool> CreateActivityAsync(ActivityDto entity)
 	{
 		var activity = _mapper.Map<Activity>(entity);
 
-		await _activityRepository.CreateAsync(activity);
+		var isSuccess = await _activityRepository.CreateAsync(activity);
 
-		_cachingRepository.Remove(this.ToString());
+		if (!isSuccess)
+			return false;
 
-		return entity;
+		_cachingRepository.Remove(CacheCode.Activity);
+
+		return true;
 	}
 
 	public async Task<bool> UpdateActivityAsync(ActivityDto activityDto)
@@ -75,9 +84,11 @@ public class ActivityService : IActivityService
 		var activity = _mapper.Map<Activity>(activityDto);
 		activity.CreatedAt = isActivityExists.CreatedAt;
 
-		await _activityRepository.UpdateAsync(activity);
+		var isSuccess = await _activityRepository.UpdateAsync(activity);
+		if (!isSuccess)
+			return false;
 
-		_cachingRepository.Remove(this.ToString());
+		_cachingRepository.Remove(CacheCode.Activity);
 
 		return true;
 	}
@@ -89,12 +100,11 @@ public class ActivityService : IActivityService
 		if (activity == null)
 			return false;
 
-		var response = await _activityRepository.DeleteAsync(id);
-
-		if (!response)
+		var isSuccess = await _activityRepository.DeleteAsync(id);
+		if (!isSuccess)
 			return false;
 
-		_cachingRepository.Remove(this.ToString());
+		_cachingRepository.Remove(CacheCode.Activity);
 
 		return true;
 	}

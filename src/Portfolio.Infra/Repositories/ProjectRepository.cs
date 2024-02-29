@@ -36,12 +36,18 @@ public class ProjectRepository : BaseRepository<Project>, IProjectRepository
 			.Where(x => x.Id == Id)
 			.ToListAsync();
 
+		if (project.Count == 0)
+			return null;
+
 		return project.First();
 	}
 
 	public async Task<bool> DeleteProject(int id)
 	{
 		var project = await _context.Projects.AsNoTracking().Where(x => x.Id == id).FirstAsync();
+
+		if (project is null)
+			return false;
 
 		project.IsActive = false;
 		project.UpdatedAt = DateTime.Now;

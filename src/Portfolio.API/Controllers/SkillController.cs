@@ -47,6 +47,10 @@ public class SkillController : ControllerBase
 		{
 			var skill = await _skillService.GetSkillByIdAsync(id);
 
+			if (skill is null)
+				return NotFound(Responses.NotFoundErrorMessage());
+
+
 			return Ok(skill);
 		}
 		catch (Exception)
@@ -61,8 +65,11 @@ public class SkillController : ControllerBase
 		try
 		{
 			var skillDto = _mapper.Map<SkillDto>(createSkillViewModel);
-			var response = await _skillService.CreateSkillAsync(skillDto);
-			return Ok(response);
+			var isSuccess = await _skillService.CreateSkillAsync(skillDto);
+			if (!isSuccess)
+				return StatusCode(StatusCodes.Status500InternalServerError, Responses.InternalServerErrorMessage());
+
+			return Created("api/skills", Responses.SuccessMessage("Skill created with success!"));
 		}
 		catch (Exception)
 		{
@@ -77,8 +84,11 @@ public class SkillController : ControllerBase
 		try
 		{
 			var skillDto = _mapper.Map<SkillDto>(updateSkillViewModel);
-			var response = await _skillService.UpdateSkillAsync(skillDto);
-			return Ok(response);
+			var isSuccess = await _skillService.UpdateSkillAsync(skillDto);
+			if (!isSuccess)
+				return StatusCode(StatusCodes.Status500InternalServerError, Responses.InternalServerErrorMessage());
+
+			return Ok(Responses.SuccessMessage("Skill updated with success!"));
 		}
 		catch (Exception)
 		{
@@ -92,8 +102,11 @@ public class SkillController : ControllerBase
 	{
 		try
 		{
-			await _skillService.DeleteSkillAsync(id);
-			return Ok();
+			var isSuccess = await _skillService.DeleteSkillAsync(id);
+			if (!isSuccess)
+				return StatusCode(StatusCodes.Status500InternalServerError, Responses.InternalServerErrorMessage());
+
+			return Ok(Responses.SuccessMessage("Skill deleted with success!"));
 		}
 		catch (Exception)
 		{

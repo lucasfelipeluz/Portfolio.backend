@@ -15,7 +15,7 @@ public class SkillMap : BaseMap<Skill>
 
 		builder.Property(e => e.Title).IsRequired().HasColumnName("title").HasColumnType("VARCHAR(100)");
 
-		builder.Property(e => e.Description).IsRequired().HasColumnName("description").HasColumnType("VARCHAR(100)");
+		builder.Property(e => e.Description).IsRequired().HasColumnName("description").HasColumnType("VARCHAR(500)");
 
 		builder.Property(e => e.Experience).IsRequired().HasColumnName("experience").HasColumnType("DATETIME");
 

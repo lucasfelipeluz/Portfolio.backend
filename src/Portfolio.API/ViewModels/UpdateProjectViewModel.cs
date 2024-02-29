@@ -20,6 +20,7 @@ public class UpdateProjectViewModel
 	[MaxLength(80, ErrorMessage = "The project description must have less than 80 letters")]
 	public string UrlGithub { get; set; }
 	public int ViewPriority { get; set; }
+	public bool IsActive { get; set; }
 
 	[DataType(DataType.Date)]
 	[DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:MM/dd/yyyy}")]

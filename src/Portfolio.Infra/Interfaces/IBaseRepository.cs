@@ -5,7 +5,8 @@ public interface IBaseRepository<T>
 {
 	Task<List<T>> GetAllAsync();
 	Task<T> GetByIdAsync(int id);
-	Task<T> CreateAsync(T entity);
-	Task<T> UpdateAsync(T entity);
+	Task<bool> CreateAsync(T entity);
+	Task<T> CreateAsync(T entity, bool returnEntity);
+	Task<bool> UpdateAsync(T entity);
 	Task<bool> DeleteAsync(int id);
 }
