@@ -1,4 +1,5 @@
 using AutoMapper;
+using Portfolio.Core.Enums;
 using Portfolio.Domain.Entities;
 using Portfolio.Infra.Cache;
 using Portfolio.Infra.Interfaces;
@@ -22,7 +23,7 @@ public class SkillService : ISkillService
 
 	public async Task<List<SkillDto>> GetAllSkillsAsync()
 	{
-		var cache = _cachingRepository.Get<List<SkillDto>>(this.ToString());
+		var cache = _cachingRepository.Get<List<SkillDto>>(CacheCode.Skill);
 
 		if (cache != null)
 		{
@@ -32,37 +33,41 @@ public class SkillService : ISkillService
 		var skills = await _skillRepository.GetActivesSkills();
 		var skillDto = _mapper.Map<List<SkillDto>>(skills);
 
-		_cachingRepository.Save(this.ToString(), skillDto);
+		_cachingRepository.Save(CacheCode.Skill, skillDto);
 
 		return skillDto;
 	}
 
 	public async Task<SkillDto> GetSkillByIdAsync(int id)
 	{
-		var cache = _cachingRepository.Get<SkillDto>(this.ToString());
+		var cache = _cachingRepository.Get<List<SkillDto>>(CacheCode.Skill);
 
-		if (cache != null)
+		if (cache is not null)
 		{
-			return cache;
+			var cacheSkill = cache.Find(x => x.Id == id);
+
+			if (cacheSkill is not null) return cacheSkill;
 		}
 
 		var skill = await _skillRepository.GetByIdAsync(id);
 		var skillDto = _mapper.Map<SkillDto>(skill);
 
-		_cachingRepository.Save(this.ToString(), skillDto);
-
 		return skillDto;
 	}
 
-	public async Task<SkillDto> CreateSkillAsync(SkillDto skillDto)
+	public async Task<bool> CreateSkillAsync(SkillDto skillDto)
 	{
 		var skill = _mapper.Map<Skill>(skillDto);
 
-		await _skillRepository.CreateAsync(skill);
+		skill.IsActive = true;
 
-		_cachingRepository.Remove(this.ToString());
+		var isSuccess = await _skillRepository.CreateAsync(skill);
+		if (!isSuccess)
+			return false;
 
-		return skillDto;
+		_cachingRepository.Remove(CacheCode.Skill);
+
+		return true;
 	}
 
 	public async Task<bool> UpdateSkillAsync(SkillDto skillDto)
@@ -76,9 +81,11 @@ public class SkillService : ISkillService
 		skill.CreatedAt = skillExists.CreatedAt;
 		skill.UpdatedAt = DateTime.Now;
 
-		await _skillRepository.UpdateAsync(skill);
+		var isSuccess = await _skillRepository.UpdateAsync(skill);
+		if (!isSuccess)
+			return false;
 
-		_cachingRepository.Remove(this.ToString());
+		_cachingRepository.Remove(CacheCode.Skill);
 
 		return true;
 	}
@@ -90,9 +97,11 @@ public class SkillService : ISkillService
 		if (project == null)
 			return false;
 
-		await _skillRepository.DeleteSkill(id);
+		var isSuccess = await _skillRepository.DeleteSkill(id);
+		if (!isSuccess)
+			return false;
 
-		_cachingRepository.Remove(this.ToString());
+		_cachingRepository.Remove(CacheCode.Skill);
 
 		return true;
 	}

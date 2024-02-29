@@ -1,4 +1,5 @@
 using AutoMapper;
+using Portfolio.Core.Enums;
 using Portfolio.Domain.Entities;
 using Portfolio.Infra.Cache;
 using Portfolio.Infra.Interfaces;
@@ -24,15 +25,16 @@ public class ProjectSkillService : IProjectSkillService
 		_cachingRepository = cachingRepository;
 	}
 
-	public async Task<ProjectSkillDto> CreateProjectSkillAsync(ProjectSkillDto entity)
+	public async Task<bool> CreateProjectSkillAsync(ProjectSkillDto entity)
 	{
 		var projectSkill = _mapper.Map<ProjectSkill>(entity);
 
-		await _projectSkillRepository.CreateAsync(projectSkill);
+		var isSuccess = await _projectSkillRepository.CreateAsync(projectSkill);
+		if (!isSuccess) return false;
 
-		_cachingRepository.Remove("Projects");
-		_cachingRepository.Remove("Skills");
+		_cachingRepository.Remove(CacheCode.Skill);
+		_cachingRepository.Remove(CacheCode.Project);
 
-		return entity;
+		return true;
 	}
 }

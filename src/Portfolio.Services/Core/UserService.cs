@@ -1,4 +1,5 @@
 using AutoMapper;
+using Portfolio.Core.Enums;
 using Portfolio.Domain.Entities;
 using Portfolio.Infra.Cache;
 using Portfolio.Infra.Interfaces;
@@ -22,9 +23,9 @@ public class UserService : IUserService
 
 	public async Task<List<UserDto>> GetAllUsersAsync()
 	{
-		var cache = _cachingRepository.Get<List<UserDto>>(this.ToString());
+		var cache = _cachingRepository.Get<List<UserDto>>(CacheCode.User);
 
-		if (cache != null)
+		if (cache is not null)
 		{
 			return cache;
 		}
@@ -32,54 +33,56 @@ public class UserService : IUserService
 		var users = await _userRepository.GetAllAsync();
 		var userDto = _mapper.Map<List<UserDto>>(users);
 
-		_cachingRepository.Save(this.ToString(), userDto);
+		_cachingRepository.Save(CacheCode.User, userDto);
 
 		return userDto;
 	}
 
 	public async Task<UserDto> GetUserByIdAsync(int id)
 	{
-		var cache = _cachingRepository.Get<UserDto>(this.ToString());
+		var cache = _cachingRepository.Get<List<UserDto>>(CacheCode.User);
 
-		if (cache != null)
+		if (cache is not null)
 		{
-			return cache;
+			var cacheUser = cache.Find(x => x.Id == id);
+
+			if (cacheUser is not null) return cacheUser;
 		}
 
 		var user = await _userRepository.GetByIdAsync(id);
 		var userDto = _mapper.Map<UserDto>(user);
-
-		_cachingRepository.Save($"{this.ToString()}/{id}", userDto);
 
 		return userDto;
 	}
 
 	public async Task<UserDto> GetUserByNickNameAsync(string nickName)
 	{
-		var cache = _cachingRepository.Get<UserDto>(this.ToString());
+		var cache = _cachingRepository.Get<List<UserDto>>(CacheCode.User);
 
-		if (cache != null)
+		if (cache is not null)
 		{
-			return cache;
+			var cacheUser = cache.Find(x => x.NickName == nickName);
+
+			if (cacheUser is not null) return cacheUser;
 		}
 
 		var user = await _userRepository.GetUserByNickName(nickName);
 		var userDto = _mapper.Map<UserDto>(user);
 
-		_cachingRepository.Save($"{this.ToString()}/nickname={nickName}", userDto);
-
 		return userDto;
 	}
 
-	public async Task<UserDto> CreateUserAsync(UserDto userDto)
+	public async Task<bool> CreateUserAsync(UserDto userDto)
 	{
 		var user = _mapper.Map<User>(userDto);
 
-		await _userRepository.CreateAsync(user);
+		var isSuccess = await _userRepository.CreateAsync(user);
+		if (!isSuccess)
+			return false;
 
-		_cachingRepository.Remove(this.ToString());
+		_cachingRepository.Remove(CacheCode.User);
 
-		return userDto;
+		return true;
 	}
 
 	public async Task<bool> UpdateUserAsync(UserDto userDto)
@@ -91,9 +94,10 @@ public class UserService : IUserService
 
 		var user = _mapper.Map<User>(userDto);
 
-		await _userRepository.UpdateAsync(user);
+		var isSuccess = await _userRepository.UpdateAsync(user);
+		if (!isSuccess) return false;
 
-		_cachingRepository.Remove(this.ToString());
+		_cachingRepository.Remove(CacheCode.User);
 
 		return true;
 	}
@@ -105,9 +109,10 @@ public class UserService : IUserService
 		if (user == null)
 			return false;
 
-		await _userRepository.DeleteAsync(id);
+		var isSuccess = await _userRepository.DeleteAsync(id);
+		if (!isSuccess) return false;
 
-		_cachingRepository.Remove(this.ToString());
+		_cachingRepository.Remove(CacheCode.User);
 
 		return true;
 	}

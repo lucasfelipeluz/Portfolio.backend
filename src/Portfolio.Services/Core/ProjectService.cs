@@ -1,4 +1,6 @@
 using AutoMapper;
+using Microsoft.VisualBasic;
+using Portfolio.Core.Enums;
 using Portfolio.Domain.Entities;
 using Portfolio.Infra.Cache;
 using Portfolio.Infra.Interfaces;
@@ -22,9 +24,9 @@ public class ProjectService : IProjectService
 
 	public async Task<List<ProjectDto>> GetAllProjectsAsync()
 	{
-		var cache = _cachingRepository.Get<List<ProjectDto>>(this.ToString());
+		var cache = _cachingRepository.Get<List<ProjectDto>>(CacheCode.Project);
 
-		if (cache != null)
+		if (cache is not null)
 		{
 			return cache;
 		}
@@ -32,37 +34,43 @@ public class ProjectService : IProjectService
 		var projects = await _projectRepository.GetActivesProjects();
 		var projectsDto = _mapper.Map<List<ProjectDto>>(projects);
 
-		_cachingRepository.Save(this.ToString(), projectsDto);
+		_cachingRepository.Save(CacheCode.Project, projectsDto);
 
 		return projectsDto;
 	}
 
 	public async Task<ProjectDto> GetProjectByIdAsync(int id)
 	{
-		var cache = _cachingRepository.Get<ProjectDto>($"{this.ToString()}/{id}");
+		var cache = _cachingRepository.Get<List<ProjectDto>>(CacheCode.Project);
 
-		if (cache != null)
+		if (cache is not null)
 		{
-			return cache;
+			var cacheProduct = cache.Find(x => x.Id == id);
+
+			if (cacheProduct != null)
+			{
+				return cacheProduct;
+			}
 		}
 
 		var project = await _projectRepository.GetProjectById(id);
-		var projectDto = _mapper.Map<ProjectDto>(project);
 
-		_cachingRepository.Save($"{this.ToString()}/{id}", projectDto);
-
-		return projectDto;
+		return _mapper.Map<ProjectDto>(project); ;
 	}
 
-	public async Task<ProjectDto> CreateProjectAsync(ProjectDto entity)
+	public async Task<bool> CreateProjectAsync(ProjectDto entity)
 	{
 		var project = _mapper.Map<Project>(entity);
 
-		await _projectRepository.CreateAsync(project);
+		project.IsActive = true;
 
-		_cachingRepository.Remove(this.ToString());
+		var isSuccess = await _projectRepository.CreateAsync(project);
+		if (!isSuccess)
+			return false;
 
-		return entity;
+		_cachingRepository.Remove(CacheCode.Project);
+
+		return true;
 	}
 
 	public async Task<bool> UpdateProjectAsync(ProjectDto projectDto)
@@ -76,9 +84,11 @@ public class ProjectService : IProjectService
 		project.CreatedAt = projectExists.CreatedAt;
 		project.UpdatedAt = DateTime.Now;
 
-		await _projectRepository.UpdateAsync(project);
+		var isSuccess = await _projectRepository.UpdateAsync(project);
+		if (!isSuccess)
+			return false;
 
-		_cachingRepository.Remove(this.ToString());
+		_cachingRepository.Remove(CacheCode.Project);
 
 		return true;
 	}
@@ -95,7 +105,7 @@ public class ProjectService : IProjectService
 		if (!response)
 			return false;
 
-		_cachingRepository.Remove(this.ToString());
+		_cachingRepository.Remove(CacheCode.Project);
 
 		return true;
 	}
