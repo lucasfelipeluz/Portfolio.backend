@@ -44,8 +44,14 @@ public class AboutMeController : ControllerBase
 		try
 		{
 			var aboutMeDto = _mapper.Map<AboutMeDto>(createAboutMeViewModel);
-			var response = await _aboutMeService.UpdateAboutMeAsync(aboutMeDto);
-			return Ok(response);
+			var isSuccess = await _aboutMeService.UpdateAboutMeAsync(aboutMeDto);
+
+			if (!isSuccess)
+			{
+				throw new Exception();
+			}
+
+			return Created("api/about_me", Responses.SuccessMessage("About me updated successfully!"));
 		}
 		catch (Exception)
 		{

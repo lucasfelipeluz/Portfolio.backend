@@ -22,6 +22,9 @@ DotEnv.Load();
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Cors
+builder.Services.AddCors();
+
 bool isDevelopmentMode = Environment.GetEnvironmentVariable("SERVER_MODE") == "development";
 
 builder
@@ -54,6 +57,7 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IImageRepository, ImageRepository>();
 builder.Services.AddScoped<IProjectSkillRepository, ProjectSkillRepository>();
 builder.Services.AddScoped<IActivityRepository, ActivityRepository>();
+builder.Services.AddScoped<ISystemVariablesRepository, SystemVariablesRepository>();
 
 builder.Services.AddScoped<IProjectService, ProjectService>();
 builder.Services.AddScoped<ISkillService, SkillService>();
@@ -62,10 +66,12 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IImageService, ImageService>();
 builder.Services.AddScoped<IProjectSkillService, ProjectSkillService>();
 builder.Services.AddScoped<IActivityService, ActivityService>();
+builder.Services.AddScoped<ISystemVariableService, SystemVariableService>();
 
 builder.Services.AddScoped<ICachingRepository, CachingRepository>();
 builder.Services.AddScoped<ITokenManager, TokenManager>();
 builder.Services.AddScoped<IS3Service, S3Service>();
+
 
 // Add Mapper's Service
 MapperConfiguration autoMapperConfig =
@@ -96,6 +102,9 @@ MapperConfiguration autoMapperConfig =
 		cfg.CreateMap<Activity, ActivityDto>().ReverseMap();
 		cfg.CreateMap<ActivityDto, CreateActivityViewModel>().ReverseMap();
 		cfg.CreateMap<ActivityDto, UpdateActivityViewModel>().ReverseMap();
+
+		cfg.CreateMap<SystemVariable, SystemVariableDto>().ReverseMap();
+		cfg.CreateMap<CreateOrUpdateSystemVariableViewModel, SystemVariableDto>().ReverseMap();
 	});
 builder.Services.AddSingleton(autoMapperConfig.CreateMapper());
 #endregion
@@ -170,6 +179,13 @@ builder.Services.AddSwaggerGen(c =>
 #endregion
 
 var app = builder.Build();
+
+app.UseCors(options =>
+{
+	options.AllowAnyOrigin();
+	options.AllowAnyMethod();
+	options.AllowAnyHeader();
+});
 
 // Configure the HTTP request pipeline.
 if (isDevelopmentMode)

@@ -28,9 +28,10 @@ public class ProjectSkillController : ControllerBase
 		try
 		{
 			var projectSkillDto = _mapper.Map<ProjectSkillDto>(createProjectSkillViewModel);
-			var response = await _projectSkillService.CreateProjectSkillAsync(projectSkillDto);
+			var isSuccess = await _projectSkillService.CreateProjectSkillAsync(projectSkillDto);
+			if (!isSuccess) return StatusCode(StatusCodes.Status500InternalServerError, Responses.InternalServerErrorMessage());
 
-			return Created("/api/v1/projects", response);
+			return Created("/api/v1/projects", Responses.SuccessMessage("Relationship created"));
 		}
 		catch (Exception e)
 		{

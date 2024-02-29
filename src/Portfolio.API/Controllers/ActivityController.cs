@@ -67,9 +67,10 @@ public class ActivityController : ControllerBase
 		{
 			var activityDto = _mapper.Map<ActivityDto>(createActivityViewModel);
 
-			var response = await _activityService.CreateActivityAsync(activityDto);
+			var isSuccess = await _activityService.CreateActivityAsync(activityDto);
+			if (!isSuccess) return StatusCode(StatusCodes.Status500InternalServerError, Responses.InternalServerErrorMessage());
 
-			return Created("api/v1/activity", response);
+			return Created("api/v1/activity", Responses.SuccessMessage("Activity created successfully!"));
 		}
 		catch (Exception)
 		{
@@ -85,9 +86,10 @@ public class ActivityController : ControllerBase
 		{
 			var activityDto = _mapper.Map<ActivityDto>(updateActivityViewModel);
 
-			var response = await _activityService.UpdateActivityAsync(activityDto);
+			var isSuccess = await _activityService.UpdateActivityAsync(activityDto);
+			if (!isSuccess) return StatusCode(StatusCodes.Status500InternalServerError, Responses.InternalServerErrorMessage());
 
-			return Ok(response);
+			return Ok(Responses.SuccessMessage("Activity updated successfully!"));
 		}
 		catch (Exception)
 		{
@@ -96,14 +98,16 @@ public class ActivityController : ControllerBase
 	}
 
 	[HttpDelete]
+	[Route("{id}")]
 	[Authorize]
 	public async Task<IActionResult> DeleteAsync(int id)
 	{
 		try
 		{
-			var response = await _activityService.DeleteActivityAsync(id);
+			var isSuccess = await _activityService.DeleteActivityAsync(id);
+			if (!isSuccess) return StatusCode(StatusCodes.Status500InternalServerError, Responses.InternalServerErrorMessage());
 
-			return Ok(response);
+			return Ok(Responses.SuccessMessage("Activity deleted successfully!"));
 		}
 		catch (Exception)
 		{

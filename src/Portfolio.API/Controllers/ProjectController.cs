@@ -45,6 +45,9 @@ public class ProjectController : ControllerBase
 		try
 		{
 			var project = await _projectService.GetProjectByIdAsync(id);
+
+			if (project is null) return NotFound(Responses.NotFoundErrorMessage());
+
 			return Ok(project);
 		}
 		catch (Exception)
@@ -60,9 +63,10 @@ public class ProjectController : ControllerBase
 		try
 		{
 			var projectDto = _mapper.Map<ProjectDto>(createProjectViewModel);
-			var response = await _projectService.CreateProjectAsync(projectDto);
+			var isSuccess = await _projectService.CreateProjectAsync(projectDto);
+			if (!isSuccess) return StatusCode(StatusCodes.Status500InternalServerError, Responses.InternalServerErrorMessage());
 
-			return Created("/api/v1/projects", response);
+			return Created("/api/v1/projects", Responses.SuccessMessage("Project created successfully!"));
 		}
 		catch (Exception e)
 		{
@@ -78,8 +82,10 @@ public class ProjectController : ControllerBase
 		try
 		{
 			var projectDto = _mapper.Map<ProjectDto>(updateProjectViewModel);
-			var response = await _projectService.UpdateProjectAsync(projectDto);
-			return Ok(response);
+			var isSuccess = await _projectService.UpdateProjectAsync(projectDto);
+			if (!isSuccess) return StatusCode(StatusCodes.Status500InternalServerError, Responses.InternalServerErrorMessage());
+
+			return Ok(Responses.SuccessMessage("Project updated successfully!"));
 		}
 		catch (Exception)
 		{
@@ -93,8 +99,10 @@ public class ProjectController : ControllerBase
 	{
 		try
 		{
-			await _projectService.DeleteProjectAsync(id);
-			return Ok();
+			var isSuccess = await _projectService.DeleteProjectAsync(id);
+			if (!isSuccess) return StatusCode(StatusCodes.Status500InternalServerError, Responses.InternalServerErrorMessage());
+
+			return Ok(Responses.SuccessMessage("Project deleted successfully!"));
 		}
 		catch (Exception)
 		{
