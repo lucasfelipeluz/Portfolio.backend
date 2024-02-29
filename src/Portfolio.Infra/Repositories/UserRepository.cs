@@ -19,7 +19,7 @@ public class UserRepository : BaseRepository<User>, IUserRepository
 	{
 		var user = await _context.Users.AsNoTracking().Where(x => x.NickName == nickName).ToListAsync();
 
-		if (user == null)
+		if (user is null)
 		{
 			return null;
 		}

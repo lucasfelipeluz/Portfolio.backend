@@ -15,8 +15,11 @@ public class ProjectSkillRepository : BaseRepository<ProjectSkill>, IProjectSkil
 		_context = context;
 	}
 
-	public Task<List<ProjectSkill>> AddRelationship(ProjectSkill projectSkill)
+	public async Task<bool> AddRelationship(ProjectSkill projectSkill)
 	{
-		throw new NotImplementedException();
+		_context.ProjectsSkills.Add(projectSkill);
+		await _context.SaveChangesAsync();
+
+		return true;
 	}
 }

@@ -1,8 +1,11 @@
-﻿namespace Portfolio.Infra.Cache;
+﻿
+using Portfolio.Core.Enums;
+
+namespace Portfolio.Infra.Cache;
 
 public interface ICachingRepository
 {
-	T Get<T>(string key);
-	void Save<T>(string key, T value);
-	void Remove(string key);
+	T Get<T>(CacheCode cacheCode);
+	void Save<T>(CacheCode cacheCode, T value);
+	void Remove(CacheCode cacheCode);
 }

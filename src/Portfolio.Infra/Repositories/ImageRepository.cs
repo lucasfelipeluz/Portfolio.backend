@@ -15,15 +15,19 @@ public class ImageRepository : BaseRepository<Image>, IImageRepository
 		_context = context;
 	}
 
-	public async Task AddRelationshipWithProject(ProjectImage projectImage)
+	public async Task<bool> AddRelationshipWithProject(ProjectImage projectImage)
 	{
 		_context.ProjectsImages.Add(projectImage);
 		await _context.SaveChangesAsync();
+
+		return true;
 	}
 
-	public async Task AddRelationshipWithSkill(SkillImage skillImage)
+	public async Task<bool> AddRelationshipWithSkill(SkillImage skillImage)
 	{
 		_context.SkillsImages.Add(skillImage);
 		await _context.SaveChangesAsync();
+
+		return true;
 	}
 }

@@ -31,7 +31,15 @@ public class BaseRepository<T> : IBaseRepository<T>
 		return entity.First();
 	}
 
-	public async Task<T> CreateAsync(T entity)
+	public async Task<bool> CreateAsync(T entity)
+	{
+		_context.Add(entity);
+		await _context.SaveChangesAsync();
+
+		return true;
+	}
+
+	public async Task<T> CreateAsync(T entity, bool returnEntity)
 	{
 		_context.Add(entity);
 		await _context.SaveChangesAsync();
@@ -39,12 +47,12 @@ public class BaseRepository<T> : IBaseRepository<T>
 		return entity;
 	}
 
-	public async Task<T> UpdateAsync(T entity)
+	public async Task<bool> UpdateAsync(T entity)
 	{
 		_context.Entry(entity).State = EntityState.Modified;
 		await _context.SaveChangesAsync();
 
-		return entity;
+		return true;
 	}
 
 	public async Task<bool> DeleteAsync(int id)

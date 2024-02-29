@@ -17,9 +17,12 @@ public class PortfolioContext : DbContext
 	public DbSet<SkillImage> SkillsImages { get; set; }
 	public DbSet<ProjectImage> ProjectsImages { get; set; }
 	public DbSet<Domain.Entities.Activity> Activity { get; set; }
+	public DbSet<SystemVariable> SystemVariables { get; set; }
 
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
 		modelBuilder.ApplyConfigurationsFromAssembly(typeof(PortfolioContext).Assembly);
+
+		modelBuilder.Entity<SystemVariable>().HasKey(x => x.Name);
 	}
 }
