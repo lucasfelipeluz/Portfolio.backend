@@ -31,6 +31,23 @@ public class ProjectService : IProjectService
 			return cache;
 		}
 
+		var projects = await _projectRepository.GetAllAsync();
+		var projectsDto = _mapper.Map<List<ProjectDto>>(projects);
+
+		_cachingRepository.Save(CacheCode.Project, projectsDto);
+
+		return projectsDto;
+	}
+
+	public async Task<List<ProjectDto>> GetAllProjectsAsync(bool isActive)
+	{
+		var cache = _cachingRepository.Get<List<ProjectDto>>(CacheCode.Project);
+
+		if (cache is not null)
+		{
+			return cache.Where(x => x.IsActive == isActive).ToList();
+		}
+
 		var projects = await _projectRepository.GetActivesProjects();
 		var projectsDto = _mapper.Map<List<ProjectDto>>(projects);
 
@@ -55,7 +72,8 @@ public class ProjectService : IProjectService
 
 		var project = await _projectRepository.GetProjectById(id);
 
-		return _mapper.Map<ProjectDto>(project); ;
+		return _mapper.Map<ProjectDto>(project);
+		;
 	}
 
 	public async Task<bool> CreateProjectAsync(ProjectDto entity)

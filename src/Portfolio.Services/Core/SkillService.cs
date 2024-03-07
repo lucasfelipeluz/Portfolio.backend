@@ -30,6 +30,23 @@ public class SkillService : ISkillService
 			return cache;
 		}
 
+		var skills = await _skillRepository.GetAllAsync();
+		var skillDto = _mapper.Map<List<SkillDto>>(skills);
+
+		_cachingRepository.Save(CacheCode.Skill, skillDto);
+
+		return skillDto;
+	}
+
+	public async Task<List<SkillDto>> GetAllSkillsAsync(bool isActive)
+	{
+		var cache = _cachingRepository.Get<List<SkillDto>>(CacheCode.Skill);
+
+		if (cache != null)
+		{
+			return cache.Where(x => x.IsActive == isActive).ToList();
+		}
+
 		var skills = await _skillRepository.GetActivesSkills();
 		var skillDto = _mapper.Map<List<SkillDto>>(skills);
 
@@ -46,7 +63,8 @@ public class SkillService : ISkillService
 		{
 			var cacheSkill = cache.Find(x => x.Id == id);
 
-			if (cacheSkill is not null) return cacheSkill;
+			if (cacheSkill is not null)
+				return cacheSkill;
 		}
 
 		var skill = await _skillRepository.GetByIdAsync(id);

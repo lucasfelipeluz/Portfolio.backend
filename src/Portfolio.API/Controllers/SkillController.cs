@@ -50,7 +50,6 @@ public class SkillController : ControllerBase
 			if (skill is null)
 				return NotFound(Responses.NotFoundErrorMessage());
 
-
 			return Ok(skill);
 		}
 		catch (Exception)

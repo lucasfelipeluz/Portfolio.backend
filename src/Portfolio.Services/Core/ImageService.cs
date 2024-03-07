@@ -86,7 +86,7 @@ public class ImageService : IImageService
 		if (image == null)
 			return false;
 
-		var isSuccess = await _imageRepository.DeleteAsync(id);
+		var isSuccess = await _imageRepository.DeleteAsync(image);
 		if (!isSuccess)
 			return false;
 
