@@ -8,12 +8,20 @@ public class UpdateSkillViewModel
 	public int Id { get; set; }
 
 	[MinLength(3, ErrorMessage = "The skill title must have more than 3 letters")]
-	[MaxLength(80, ErrorMessage = "The skill title must have less than 80 letters")]
+	[MaxLength(500, ErrorMessage = "The skill title must have less than 500 letters")]
 	public string Title { get; set; }
 
+	[MinLength(3, ErrorMessage = "The skill title in english must have more than 3 letters")]
+	[MaxLength(500, ErrorMessage = "The skill title in english must have less than 500 letters")]
+	public string TitleEnglish { get; set; }
+
 	[MinLength(3, ErrorMessage = "The skill description must have more than 3 letters")]
-	[MaxLength(80, ErrorMessage = "The skill description must have less than 80 letters")]
+	[MaxLength(500, ErrorMessage = "The skill description must have less than 500 letters")]
 	public string Description { get; set; }
+
+	[MinLength(3, ErrorMessage = "The skill description in english must have more than 3 letters")]
+	[MaxLength(500, ErrorMessage = "The skill description in english must have less than 500 letters")]
+	public string DescriptionEnglish { get; set; }
 
 	[DataType(DataType.Date)]
 	[DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:MM/dd/yyyy}")]
