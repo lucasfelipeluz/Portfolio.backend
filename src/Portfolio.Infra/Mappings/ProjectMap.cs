@@ -15,7 +15,19 @@ public class ProjectMap : BaseMap<Project>
 
 		builder.Property(e => e.Title).IsRequired().HasColumnName("title").HasColumnType("VARCHAR(100)");
 
-		builder.Property(e => e.Description).IsRequired().HasColumnName("description").HasColumnType("VARCHAR(100)");
+		builder
+			.Property(e => e.TitleEnglish)
+			.HasColumnName("title_en")
+			.HasColumnType("VARCHAR(100)")
+			.HasDefaultValue(null);
+
+		builder.Property(e => e.Description).IsRequired().HasColumnName("description").HasColumnType("VARCHAR(500)");
+
+		builder
+			.Property(e => e.DescriptionEnglish)
+			.HasColumnName("description_en")
+			.HasColumnType("VARCHAR(500)")
+			.HasDefaultValue(null);
 
 		builder.Property(e => e.UrlGithub).IsRequired().HasColumnName("url_github").HasColumnType("VARCHAR(200)");
 
