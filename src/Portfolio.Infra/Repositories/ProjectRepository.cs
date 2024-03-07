@@ -54,7 +54,10 @@ public class ProjectRepository : BaseRepository<Project>, IProjectRepository
 
 		_context.Entry(project).State = EntityState.Modified;
 
-		await _context.SaveChangesAsync();
+		var result = await _context.SaveChangesAsync();
+
+		if (result <= 0)
+			return false;
 
 		return true;
 	}

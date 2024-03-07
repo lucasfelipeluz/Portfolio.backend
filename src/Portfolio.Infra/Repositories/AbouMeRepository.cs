@@ -25,7 +25,10 @@ public class AboutMeRepository : BaseRepository<AboutMe>, IAboutMeRepository
 	public async Task<bool> UpdateAboutMeAsync(AboutMe aboutMe)
 	{
 		_context.Add(aboutMe);
-		await _context.SaveChangesAsync();
+		var result = await _context.SaveChangesAsync();
+
+		if (result <= 0)
+			return false;
 
 		return true;
 	}
