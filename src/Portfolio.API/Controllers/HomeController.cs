@@ -61,7 +61,7 @@ public class HomeController : ControllerBase
 
 	[HttpGet]
 	[Route("admin")]
-	[Authorize]
+	// [Authorize]
 	public async Task<IActionResult> GetHomeAdminAsync(
 		[FromQuery] bool? isActiveProject,
 		[FromQuery] bool? isActiveSkill

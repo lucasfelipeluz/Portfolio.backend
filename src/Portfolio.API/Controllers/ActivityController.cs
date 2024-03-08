@@ -48,7 +48,7 @@ public class ActivityController : ControllerBase
 
 			if (activity == null)
 			{
-				return NotFound("Não foi encontrado nenhuma atividade com o id informado.");
+				return NotFound(Responses.NotFoundErrorMessage("Activity not found!"));
 			}
 
 			return Ok(activity);
