@@ -100,7 +100,7 @@ public class ActivityService : IActivityService
 		if (activity == null)
 			return false;
 
-		var isSuccess = await _activityRepository.DeleteAsync(id);
+		var isSuccess = await _activityRepository.DeleteAsync(activity);
 		if (!isSuccess)
 			return false;
 

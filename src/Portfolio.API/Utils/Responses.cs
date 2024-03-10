@@ -1,4 +1,5 @@
-﻿using Portfolio.API.ViewModels;
+﻿using Microsoft.AspNetCore.Mvc;
+using Portfolio.API.ViewModels;
 
 namespace Portfolio.API.Utils;
 
@@ -18,9 +19,24 @@ public class Responses
 		return new ResultViewModel { Message = message, Success = true };
 	}
 
+	public static ResultViewModel SuccessLoginMessage(ResultLoginViewModel result)
+	{
+		return new ResultViewModel
+		{
+			Message = "User logged in successfully!",
+			Success = true,
+			Data = result
+		};
+	}
+
 	public static ResultViewModel NotFoundErrorMessage()
 	{
 		return new ResultViewModel { Message = "Registro não encontrado!", Success = false };
+	}
+
+	public static ResultViewModel NotFoundErrorMessage(string message)
+	{
+		return new ResultViewModel { Message = message, Success = false };
 	}
 
 	public static ResultViewModel DomainErrorMessage(string message)
@@ -40,6 +56,11 @@ public class Responses
 			Message = "Ocorreu um erro interno na aplicação, por favor tente novamente.",
 			Success = false,
 		};
+	}
+
+	public static ResultViewModel InternalServerErrorMessage(string message)
+	{
+		return new ResultViewModel { Message = message, Success = false, };
 	}
 
 	public static ResultViewModel S3Response(string message, bool success)

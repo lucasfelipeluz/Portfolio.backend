@@ -1,8 +1,11 @@
 {
-	"terminal.integrated.defaultProfile.windows": "Command Prompt",
+	"terminal.integrated.defaultProfile.windows": "PowerShell",
 	"editor.tabSize": 2,
 	"editor.codeActionsOnSave": {
 		"source.fixAll.eslint": "explicit"
 	},
-	"editor.defaultFormatter": "csharpier.csharpier-vscode"
+	"editor.defaultFormatter": "csharpier.csharpier-vscode",
+	"[csharp]": {
+		"editor.defaultFormatter": "csharpier.csharpier-vscode"
+	}
 }

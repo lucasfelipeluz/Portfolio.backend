@@ -57,15 +57,19 @@ public class UserController : ControllerBase
 			var user = await _userService.GetUserByNickNameAsync(loginViewModel.NickName);
 
 			if (user == null)
-				return BadRequest("User not found!");
+				return BadRequest(Responses.NotFoundErrorMessage("User not found!"));
 
 			var isPasswordCorrect = _tokenManager.ComparePasswords(loginViewModel.Password, user.Password);
 
 			if (!isPasswordCorrect)
-				return BadRequest("Password is wrong!");
+				return StatusCode(StatusCodes.Status401Unauthorized, Responses.UnauthorizedErrorMessage());
 
 			var token = _tokenManager.GenerateToken(user);
-			return Ok(new ResultViewModel { Message = token, Success = true });
+			user.Password = null;
+
+			var result = new ResultLoginViewModel { User = user, Token = token };
+
+			return Ok(Responses.SuccessLoginMessage(result));
 		}
 		catch (Exception e)
 		{

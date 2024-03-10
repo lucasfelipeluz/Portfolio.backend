@@ -1,5 +1,4 @@
-﻿
-using Portfolio.Core.Enums;
+﻿using Portfolio.Core.Enums;
 
 namespace Portfolio.Infra.Cache;
 

@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Portfolio.Core.Enums;
 using Portfolio.Domain.Entities;
 
 namespace Portfolio.Infra.Mappings;
@@ -25,6 +26,13 @@ public class UserMap : BaseMap<User>
 			.HasColumnName("is_active")
 			.HasColumnType("TINYINT")
 			.HasDefaultValue(true);
+
+		builder
+			.Property(e => e.Role)
+			.IsRequired()
+			.HasColumnName("role")
+			.HasColumnType("INT")
+			.HasDefaultValue(UserRole.User);
 
 		builder
 			.Property(e => e.CreatedAt)

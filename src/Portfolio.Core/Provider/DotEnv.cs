@@ -1,4 +1,4 @@
-namespace Portfolio.API.Provider;
+namespace Portfolio.Core.Provider;
 
 public static class DotEnv
 {

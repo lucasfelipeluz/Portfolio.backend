@@ -6,8 +6,8 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Portfolio.API.Auth;
 using Portfolio.API.Middlewares;
-using Portfolio.API.Provider;
 using Portfolio.API.ViewModels;
+using Portfolio.Core.Provider;
 using Portfolio.Domain.Entities;
 using Portfolio.Infra.Cache;
 using Portfolio.Infra.Context;
@@ -72,7 +72,6 @@ builder.Services.AddScoped<ICachingRepository, CachingRepository>();
 builder.Services.AddScoped<ITokenManager, TokenManager>();
 builder.Services.AddScoped<IS3Service, S3Service>();
 
-
 // Add Mapper's Service
 MapperConfiguration autoMapperConfig =
 	new(cfg =>
@@ -134,48 +133,49 @@ builder
 #endregion
 
 #region Swagger
-builder.Services.AddSwaggerGen(c =>
-{
-	c.SwaggerDoc(
-		"v1",
-		new OpenApiInfo
-		{
-			Title = "Portfolio API",
-			Version = "v1",
-			Description = "Portfolio developed in order to allocate my projects.",
-			Contact = new OpenApiContact
+builder
+	.Services.AddSwaggerGen(c =>
+	{
+		c.SwaggerDoc(
+			"v1",
+			new OpenApiInfo
 			{
-				Name = "Lucas Luz",
-				Email = "lucasfelipeluz.dev@gmail.com",
-				Url = new Uri("https://www.linkedin.com/in/lucasfelipeluz/")
-			},
-		}
-	);
-
-	c.AddSecurityDefinition(
-		"Bearer",
-		new OpenApiSecurityScheme
-		{
-			In = ParameterLocation.Header,
-			Description = "Please, use Bearer <TOKEN>",
-			Name = "Authorization",
-			Type = SecuritySchemeType.ApiKey
-		}
-	);
-	c.AddSecurityRequirement(
-		new OpenApiSecurityRequirement
-		{
-			{
-				new OpenApiSecurityScheme
+				Title = "Portfolio API",
+				Version = "v1",
+				Description = "Portfolio developed in order to allocate my projects.",
+				Contact = new OpenApiContact
 				{
-					Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" }
+					Name = "Lucas Luz",
+					Email = "lucasfelipeluz.dev@gmail.com",
+					Url = new Uri("https://www.linkedin.com/in/lucasfelipeluz/")
 				},
-				new string[] { }
 			}
-		}
-	);
-});
+		);
 
+		c.AddSecurityDefinition(
+			"Bearer",
+			new OpenApiSecurityScheme
+			{
+				In = ParameterLocation.Header,
+				Description = "Please, use Bearer <TOKEN>",
+				Name = "Authorization",
+				Type = SecuritySchemeType.ApiKey
+			}
+		);
+		c.AddSecurityRequirement(
+			new OpenApiSecurityRequirement
+			{
+				{
+					new OpenApiSecurityScheme
+					{
+						Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" }
+					},
+					new string[] { }
+				}
+			}
+		);
+	})
+	.AddRouting();
 #endregion
 
 var app = builder.Build();

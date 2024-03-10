@@ -43,6 +43,15 @@ public class AboutMeService : IAboutMeService
 	{
 		var aboutMe = await _aboutMeRepository.GetAboutMeAsync();
 
+		if (aboutMe is null)
+		{
+			var postAboutMe = _mapper.Map<AboutMe>(aboutMeDto);
+
+			var isSuccessPost = await _aboutMeRepository.CreateAsync(postAboutMe);
+
+			return isSuccessPost;
+		}
+
 		aboutMeDto.Name = string.IsNullOrEmpty(aboutMeDto.Name) ? aboutMe.Name : aboutMeDto.Name;
 		aboutMeDto.Text = string.IsNullOrEmpty(aboutMeDto.Text) ? aboutMe.Text : aboutMeDto.Text;
 		aboutMeDto.JobTitle = string.IsNullOrEmpty(aboutMeDto.JobTitle) ? aboutMe.JobTitle : aboutMeDto.JobTitle;

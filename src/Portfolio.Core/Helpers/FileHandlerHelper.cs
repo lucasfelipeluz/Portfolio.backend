@@ -1,4 +1,4 @@
-﻿namespace Portfolio.API.Utils;
+﻿namespace Portfolio.Core.Helpers;
 
 public class FileHandlerHelper
 {

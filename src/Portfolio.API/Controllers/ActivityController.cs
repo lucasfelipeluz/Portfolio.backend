@@ -48,7 +48,7 @@ public class ActivityController : ControllerBase
 
 			if (activity == null)
 			{
-				return NotFound("Não foi encontrado nenhuma atividade com o id informado.");
+				return NotFound(Responses.NotFoundErrorMessage("Activity not found!"));
 			}
 
 			return Ok(activity);
@@ -68,7 +68,8 @@ public class ActivityController : ControllerBase
 			var activityDto = _mapper.Map<ActivityDto>(createActivityViewModel);
 
 			var isSuccess = await _activityService.CreateActivityAsync(activityDto);
-			if (!isSuccess) return StatusCode(StatusCodes.Status500InternalServerError, Responses.InternalServerErrorMessage());
+			if (!isSuccess)
+				return StatusCode(StatusCodes.Status500InternalServerError, Responses.InternalServerErrorMessage());
 
 			return Created("api/v1/activity", Responses.SuccessMessage("Activity created successfully!"));
 		}
@@ -87,7 +88,8 @@ public class ActivityController : ControllerBase
 			var activityDto = _mapper.Map<ActivityDto>(updateActivityViewModel);
 
 			var isSuccess = await _activityService.UpdateActivityAsync(activityDto);
-			if (!isSuccess) return StatusCode(StatusCodes.Status500InternalServerError, Responses.InternalServerErrorMessage());
+			if (!isSuccess)
+				return StatusCode(StatusCodes.Status500InternalServerError, Responses.InternalServerErrorMessage());
 
 			return Ok(Responses.SuccessMessage("Activity updated successfully!"));
 		}
@@ -105,7 +107,8 @@ public class ActivityController : ControllerBase
 		try
 		{
 			var isSuccess = await _activityService.DeleteActivityAsync(id);
-			if (!isSuccess) return StatusCode(StatusCodes.Status500InternalServerError, Responses.InternalServerErrorMessage());
+			if (!isSuccess)
+				return StatusCode(StatusCodes.Status500InternalServerError, Responses.InternalServerErrorMessage());
 
 			return Ok(Responses.SuccessMessage("Activity deleted successfully!"));
 		}

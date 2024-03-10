@@ -70,7 +70,8 @@ public class SystemVariableService : ISystemVariableService
 		if (isSystemVariableExists is null)
 		{
 			var isCreateSuccess = await _systemVariablesRepository.CreateAsync(systemVariable);
-			if (!isCreateSuccess) return false;
+			if (!isCreateSuccess)
+				return false;
 
 			_cachingRepository.Remove(CacheCode.SystemVariable);
 
@@ -78,7 +79,8 @@ public class SystemVariableService : ISystemVariableService
 		}
 
 		var isUpdateSuccess = await _systemVariablesRepository.UpdateAsync(systemVariable);
-		if (!isUpdateSuccess) return false;
+		if (!isUpdateSuccess)
+			return false;
 
 		_cachingRepository.Remove(CacheCode.SystemVariable);
 

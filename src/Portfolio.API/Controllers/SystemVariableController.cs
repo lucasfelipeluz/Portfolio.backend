@@ -44,7 +44,7 @@ public class SystemVariableController : ControllerBase
 		{
 			var systemVariable = await _systemVariableService.GetSystemVariableAsync(name);
 			if (systemVariable is null)
-				return NotFound(Responses.NotFoundErrorMessage());
+				return NotFound(Responses.NotFoundErrorMessage($"System variable {name} not found!"));
 
 			return Ok(systemVariable);
 		}

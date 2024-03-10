@@ -46,7 +46,8 @@ public class UserService : IUserService
 		{
 			var cacheUser = cache.Find(x => x.Id == id);
 
-			if (cacheUser is not null) return cacheUser;
+			if (cacheUser is not null)
+				return cacheUser;
 		}
 
 		var user = await _userRepository.GetByIdAsync(id);
@@ -63,7 +64,8 @@ public class UserService : IUserService
 		{
 			var cacheUser = cache.Find(x => x.NickName == nickName);
 
-			if (cacheUser is not null) return cacheUser;
+			if (cacheUser is not null)
+				return cacheUser;
 		}
 
 		var user = await _userRepository.GetUserByNickName(nickName);
@@ -95,7 +97,8 @@ public class UserService : IUserService
 		var user = _mapper.Map<User>(userDto);
 
 		var isSuccess = await _userRepository.UpdateAsync(user);
-		if (!isSuccess) return false;
+		if (!isSuccess)
+			return false;
 
 		_cachingRepository.Remove(CacheCode.User);
 
@@ -109,8 +112,9 @@ public class UserService : IUserService
 		if (user == null)
 			return false;
 
-		var isSuccess = await _userRepository.DeleteAsync(id);
-		if (!isSuccess) return false;
+		var isSuccess = await _userRepository.DeleteAsync(user);
+		if (!isSuccess)
+			return false;
 
 		_cachingRepository.Remove(CacheCode.User);
 

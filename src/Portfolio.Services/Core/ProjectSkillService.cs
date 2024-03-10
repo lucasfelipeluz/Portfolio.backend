@@ -30,7 +30,8 @@ public class ProjectSkillService : IProjectSkillService
 		var projectSkill = _mapper.Map<ProjectSkill>(entity);
 
 		var isSuccess = await _projectSkillRepository.CreateAsync(projectSkill);
-		if (!isSuccess) return false;
+		if (!isSuccess)
+			return false;
 
 		_cachingRepository.Remove(CacheCode.Skill);
 		_cachingRepository.Remove(CacheCode.Project);

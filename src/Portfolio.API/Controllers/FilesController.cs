@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Portfolio.API.Utils;
 using Portfolio.API.ViewModels;
+using Portfolio.Core.Helpers;
 using Portfolio.Domain.Entities;
 using Portfolio.Services.Dto;
 using Portfolio.Services.Interfaces;
@@ -28,9 +29,7 @@ public class FilesController : ControllerBase
 		try
 		{
 			if (uploadImageViewModel.SkillId == 0 && uploadImageViewModel.ProjectId == 0)
-				return BadRequest(
-					new ResultViewModel { Message = "You must provide a project or a skill id", Success = false }
-				);
+				return BadRequest(Responses.InternalServerErrorMessage("You must provide a project or a skill id"));
 
 			// Creating the file info
 			string folderName = uploadImageViewModel.ProjectId != 0 ? "project" : "skill";
@@ -66,7 +65,7 @@ public class FilesController : ControllerBase
 
 			FileHandlerHelper.DeleteFile(fileName);
 
-			return Ok(new ResultViewModel { Message = result.Message, Success = true });
+			return Ok(Responses.SuccessMessage(result.Message));
 		}
 		catch (Exception)
 		{

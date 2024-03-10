@@ -8,5 +8,5 @@ public interface IBaseRepository<T>
 	Task<bool> CreateAsync(T entity);
 	Task<T> CreateAsync(T entity, bool returnEntity);
 	Task<bool> UpdateAsync(T entity);
-	Task<bool> DeleteAsync(int id);
+	Task<bool> DeleteAsync(T entity);
 }

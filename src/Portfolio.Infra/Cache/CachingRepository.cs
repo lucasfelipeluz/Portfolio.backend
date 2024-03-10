@@ -1,5 +1,5 @@
-﻿using Portfolio.Core.Enums;
-using Microsoft.Extensions.Caching.Memory;
+﻿using Microsoft.Extensions.Caching.Memory;
+using Portfolio.Core.Enums;
 
 namespace Portfolio.Infra.Cache;
 
