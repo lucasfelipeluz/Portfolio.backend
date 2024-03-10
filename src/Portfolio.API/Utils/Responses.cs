@@ -19,6 +19,16 @@ public class Responses
 		return new ResultViewModel { Message = message, Success = true };
 	}
 
+	public static ResultViewModel SuccessLoginMessage(ResultLoginViewModel result)
+	{
+		return new ResultViewModel
+		{
+			Message = "User logged in successfully!",
+			Success = true,
+			Data = result
+		};
+	}
+
 	public static ResultViewModel NotFoundErrorMessage()
 	{
 		return new ResultViewModel { Message = "Registro não encontrado!", Success = false };
