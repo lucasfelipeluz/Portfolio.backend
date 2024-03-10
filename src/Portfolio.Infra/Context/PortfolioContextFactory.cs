@@ -9,7 +9,12 @@ public class PortfolioContextFactory : IDesignTimeDbContextFactory<PortfolioCont
 	{
 		var optionsBuilder = new DbContextOptionsBuilder<PortfolioContext>();
 
-		string connectionString = "Server=localhost;Database=portfolio;Uid=root;Pwd=Telegram2012*;";
+		string dbServer = Environment.GetEnvironmentVariable("DB_SERVER");
+		string dbName = Environment.GetEnvironmentVariable("DB_NAME");
+		string dbUser = Environment.GetEnvironmentVariable("DB_USER");
+		string dbPassword = Environment.GetEnvironmentVariable("DB_PASSWORD");
+
+		string connectionString = $"Server={dbServer};Database={dbName};Uid={dbUser};Pwd={dbPassword};";
 		optionsBuilder.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
 
 		return new PortfolioContext(optionsBuilder.Options);
