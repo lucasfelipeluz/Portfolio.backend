@@ -41,4 +41,5 @@ public class CreateSkillViewModel
 
 	[Required(ErrorMessage = "The skill view priority is required!")]
 	public int ViewPriority { get; set; }
+	public int[] ProjectsId { get; set; }
 }

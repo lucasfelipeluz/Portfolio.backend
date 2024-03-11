@@ -15,10 +15,13 @@ public class ProjectController : ControllerBase
 	private readonly IMapper _mapper;
 	private readonly IProjectService _projectService;
 
-	public ProjectController(IProjectService projectService, IMapper mapper)
+	private readonly IProjectSkillService _projectSkillService;
+
+	public ProjectController(IProjectService projectService, IMapper mapper, IProjectSkillService projectSkillService)
 	{
 		_projectService = projectService;
 		_mapper = mapper;
+		_projectSkillService = projectSkillService;
 	}
 
 	[HttpGet]
@@ -64,9 +67,19 @@ public class ProjectController : ControllerBase
 		try
 		{
 			var projectDto = _mapper.Map<ProjectDto>(createProjectViewModel);
-			var isSuccess = await _projectService.CreateProjectAsync(projectDto);
-			if (!isSuccess)
+			var createdProject = await _projectService.CreateProjectAsync(projectDto, true);
+			if (createdProject is null)
 				return StatusCode(StatusCodes.Status500InternalServerError, Responses.InternalServerErrorMessage());
+
+			if (createProjectViewModel.SkillsId is not null && createProjectViewModel.SkillsId.Length > 0)
+			{
+				int[] projectsId = { createdProject.Id };
+
+				ProjectSkillOnDemandDto projectSkillOnDemandDto =
+					new() { ProjectsId = projectsId, SkillsId = createProjectViewModel.SkillsId };
+
+				await _projectSkillService.CreateProjectSkillOnDemandAsync(projectSkillOnDemandDto);
+			}
 
 			return Created("/api/v1/projects", Responses.SuccessMessage("Project created successfully!"));
 		}

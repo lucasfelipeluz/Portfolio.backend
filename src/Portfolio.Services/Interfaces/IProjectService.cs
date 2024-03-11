@@ -8,6 +8,7 @@ public interface IProjectService
 	Task<List<ProjectDto>> GetAllProjectsAsync(bool isActive);
 	Task<ProjectDto> GetProjectByIdAsync(int id);
 	Task<bool> CreateProjectAsync(ProjectDto projectDto);
+	Task<ProjectDto> CreateProjectAsync(ProjectDto projectDto, bool returnEntity);
 	Task<bool> UpdateProjectAsync(ProjectDto projectDto);
 	Task<bool> DeleteProjectAsync(int id);
 }

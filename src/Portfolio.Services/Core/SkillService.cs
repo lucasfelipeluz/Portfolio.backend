@@ -88,6 +88,23 @@ public class SkillService : ISkillService
 		return true;
 	}
 
+	public async Task<SkillDto> CreateSkillAsync(SkillDto skillDto, bool returnEntity)
+	{
+		var skill = _mapper.Map<Skill>(skillDto);
+
+		skill.IsActive = true;
+
+		var entity = await _skillRepository.CreateAsync(skill, returnEntity);
+		if (entity is null)
+			return null;
+
+		var createdSkill = _mapper.Map<SkillDto>(entity);
+
+		_cachingRepository.Remove(CacheCode.Skill);
+
+		return createdSkill;
+	}
+
 	public async Task<bool> UpdateSkillAsync(SkillDto skillDto)
 	{
 		var skillExists = await _skillRepository.GetByIdAsync(skillDto.Id);

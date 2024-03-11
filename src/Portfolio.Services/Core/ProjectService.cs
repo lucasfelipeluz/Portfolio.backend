@@ -91,6 +91,24 @@ public class ProjectService : IProjectService
 		return true;
 	}
 
+	public async Task<ProjectDto> CreateProjectAsync(ProjectDto entity, bool returnEntity)
+	{
+		var project = _mapper.Map<Project>(entity);
+
+		project.IsActive = true;
+
+		var createdProject = await _projectRepository.CreateAsync(project, returnEntity);
+
+		if (createdProject is null)
+			return null;
+
+		var projectDto = _mapper.Map<ProjectDto>(createdProject);
+
+		_cachingRepository.Remove(CacheCode.Project);
+
+		return projectDto;
+	}
+
 	public async Task<bool> UpdateProjectAsync(ProjectDto projectDto)
 	{
 		var projectExists = await _projectRepository.GetByIdAsync(projectDto.Id);

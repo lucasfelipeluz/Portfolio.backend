@@ -15,11 +15,13 @@ public class SkillController : ControllerBase
 {
 	private readonly IMapper _mapper;
 	private readonly ISkillService _skillService;
+	private readonly IProjectSkillService _projectSkillService;
 
-	public SkillController(IMapper mapper, ISkillService skillService)
+	public SkillController(IMapper mapper, ISkillService skillService, IProjectSkillService projectSkillService)
 	{
 		_mapper = mapper;
 		_skillService = skillService;
+		_projectSkillService = projectSkillService;
 	}
 
 	[HttpGet]
@@ -59,14 +61,25 @@ public class SkillController : ControllerBase
 	}
 
 	[HttpPost]
+	[Authorize]
 	public async Task<IActionResult> CreateAsync([FromBody] CreateSkillViewModel createSkillViewModel)
 	{
 		try
 		{
 			var skillDto = _mapper.Map<SkillDto>(createSkillViewModel);
-			var isSuccess = await _skillService.CreateSkillAsync(skillDto);
-			if (!isSuccess)
+			var createdSkill = await _skillService.CreateSkillAsync(skillDto, true);
+			if (createdSkill is null)
 				return StatusCode(StatusCodes.Status500InternalServerError, Responses.InternalServerErrorMessage());
+
+			if (createSkillViewModel.ProjectsId is not null && createSkillViewModel.ProjectsId.Length > 0)
+			{
+				int[] skillId = { createdSkill.Id };
+
+				ProjectSkillOnDemandDto projectSkillOnDemandDto =
+					new() { ProjectsId = createSkillViewModel.ProjectsId, SkillsId = skillId };
+
+				await _projectSkillService.CreateProjectSkillOnDemandAsync(projectSkillOnDemandDto);
+			}
 
 			return Created("api/skills", Responses.SuccessMessage("Skill created with success!"));
 		}

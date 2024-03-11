@@ -41,4 +41,5 @@ public class CreateProjectViewModel
 	[DataType(DataType.Date)]
 	[DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:MM/dd/yyyy}")]
 	public DateTime? FinishedAt { get; set; }
+	public int[] SkillsId { get; set; }
 }

@@ -38,4 +38,54 @@ public class ProjectSkillService : IProjectSkillService
 
 		return true;
 	}
+
+	public async Task<bool> CreateProjectSkillOnDemandAsync(ProjectSkillOnDemandDto projectSkillOnDemandDto)
+	{
+		bool isSkillOnDemandForOneProject =
+			projectSkillOnDemandDto.ProjectsId.Length == 1 && projectSkillOnDemandDto.SkillsId.Length > 0;
+		bool isProjectOnDemandForOneSkill =
+			projectSkillOnDemandDto.SkillsId.Length == 1 && projectSkillOnDemandDto.ProjectsId.Length > 0;
+
+		if (isSkillOnDemandForOneProject)
+		{
+			ProjectSkill[] projectSkills = projectSkillOnDemandDto
+				.SkillsId.Select(skillId => new ProjectSkill
+				{
+					ProjectId = projectSkillOnDemandDto.ProjectsId[0],
+					SkillId = skillId
+				})
+				.ToArray();
+
+			// Create the ProjectSkill's
+			for (int i = 0; i < projectSkills.Length; i++)
+			{
+				_projectSkillRepository.Create(projectSkills[i]);
+			}
+
+			await _projectSkillRepository.SaveChangesAsync();
+
+			return true;
+		}
+		else if (isProjectOnDemandForOneSkill)
+		{
+			ProjectSkill[] projectSkills = projectSkillOnDemandDto
+				.ProjectsId.Select(projectId => new ProjectSkill
+				{
+					ProjectId = projectId,
+					SkillId = projectSkillOnDemandDto.SkillsId[0]
+				})
+				.ToArray();
+
+			for (int i = 0; i < projectSkills.Length; i++)
+			{
+				_projectSkillRepository.Create(projectSkills[i]);
+			}
+
+			await _projectSkillRepository.SaveChangesAsync();
+
+			return true;
+		}
+
+		return false;
+	}
 }

@@ -53,6 +53,13 @@ public class BaseRepository<T> : IBaseRepository<T>
 		return entity;
 	}
 
+	public T Create(T entity)
+	{
+		var response = _context.Add(entity);
+
+		return entity;
+	}
+
 	public async Task<bool> UpdateAsync(T entity)
 	{
 		_context.Entry(entity).State = EntityState.Modified;
@@ -73,5 +80,10 @@ public class BaseRepository<T> : IBaseRepository<T>
 			return false;
 
 		return true;
+	}
+
+	public async Task SaveChangesAsync()
+	{
+		await _context.SaveChangesAsync();
 	}
 }
