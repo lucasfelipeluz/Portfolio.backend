@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Portfolio.Core.ExceptionHandles;
 using Portfolio.Domain.Entities;
 using Portfolio.Infra.Context;
 using Portfolio.Infra.Interfaces;
@@ -15,21 +16,46 @@ public class SkillRepository : BaseRepository<Skill>, ISkillRepository
 		_context = context;
 	}
 
-	public async Task<List<Skill>> GetActivesSkills()
+	public override async Task<List<Skill>> GetAllAsync()
 	{
-		var skills = await _context
-			.Skills.AsNoTracking()
-			.Where(x => x.IsActive == true)
-			.OrderByDescending(x => x.ViewPriority)
-			.Include(x => x.Projects)
-			.ToListAsync();
+		try
+		{
+			var skills = await _context
+				.Skills.AsNoTracking()
+				.OrderByDescending(x => x.ViewPriority)
+				.Include(x => x.Projects)
+				.ToListAsync();
 
-		return skills;
+			return skills;
+		}
+		catch (Exception ex)
+		{
+			throw new RepositoryException(ex.Message, ex);
+		}
 	}
 
-	public async Task<bool> DeleteSkill(int id)
+	public async Task<List<Skill>> GetByIsActive(bool isActive)
 	{
-		var skill = await _context.Skills.AsNoTracking().Where(x => x.Id == id).FirstAsync();
+		try
+		{
+			var skills = await _context
+				.Skills.AsNoTracking()
+				.Where(x => x.IsActive == isActive)
+				.OrderByDescending(x => x.ViewPriority)
+				.Include(x => x.Projects)
+				.ToListAsync();
+
+			return skills;
+		}
+		catch (Exception ex)
+		{
+			throw new RepositoryException(ex.Message, ex);
+		}
+	}
+
+	public override async Task<Skill> DeleteAsync(Skill entity)
+	{
+		var skill = await _context.Skills.AsNoTracking().Where(x => x.Id == entity.Id).FirstAsync();
 
 		skill.IsActive = false;
 		skill.UpdatedAt = DateTime.Now;
@@ -38,6 +64,6 @@ public class SkillRepository : BaseRepository<Skill>, ISkillRepository
 
 		await _context.SaveChangesAsync();
 
-		return true;
+		return entity;
 	}
 }

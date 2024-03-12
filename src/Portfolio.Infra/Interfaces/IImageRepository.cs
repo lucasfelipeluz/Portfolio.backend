@@ -4,6 +4,6 @@ namespace Portfolio.Infra.Interfaces;
 
 public interface IImageRepository : IBaseRepository<Image>
 {
-	Task<bool> AddRelationshipWithProject(ProjectImage projectImage);
-	Task<bool> AddRelationshipWithSkill(SkillImage skillImage);
+	Task<ProjectImage> AddRelationshipWithProject(ProjectImage projectImage);
+	Task<SkillImage> AddRelationshipWithSkill(SkillImage skillImage);
 }

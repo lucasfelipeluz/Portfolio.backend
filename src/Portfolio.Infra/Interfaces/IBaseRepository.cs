@@ -5,10 +5,11 @@ public interface IBaseRepository<T>
 {
 	Task<List<T>> GetAllAsync();
 	Task<T> GetByIdAsync(int id);
-	Task<bool> CreateAsync(T entity);
-	Task<T> CreateAsync(T entity, bool returnEntity);
+	Task<T> CreateAsync(T entity);
 	T Create(T entity);
-	Task<bool> UpdateAsync(T entity);
-	Task<bool> DeleteAsync(T entity);
+	Task<T> UpdateAsync(T entity);
+	T Update(T entity);
+	Task<T> DeleteAsync(T entity);
+	T Delete(T entity);
 	Task SaveChangesAsync();
 }

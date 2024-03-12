@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Portfolio.Core.ExceptionHandles;
 using Portfolio.Domain.Entities;
 using Portfolio.Infra.Context;
 using Portfolio.Infra.Interfaces;
@@ -15,19 +16,33 @@ public class ImageRepository : BaseRepository<Image>, IImageRepository
 		_context = context;
 	}
 
-	public async Task<bool> AddRelationshipWithProject(ProjectImage projectImage)
+	public async Task<ProjectImage> AddRelationshipWithProject(ProjectImage projectImage)
 	{
-		_context.ProjectsImages.Add(projectImage);
-		await _context.SaveChangesAsync();
+		try
+		{
+			_context.ProjectsImages.Add(projectImage);
+			await _context.SaveChangesAsync();
 
-		return true;
+			return projectImage;
+		}
+		catch (Exception ex)
+		{
+			throw new RepositoryException(ex.Message, ex);
+		}
 	}
 
-	public async Task<bool> AddRelationshipWithSkill(SkillImage skillImage)
+	public async Task<SkillImage> AddRelationshipWithSkill(SkillImage skillImage)
 	{
-		_context.SkillsImages.Add(skillImage);
-		await _context.SaveChangesAsync();
+		try
+		{
+			_context.SkillsImages.Add(skillImage);
+			await _context.SaveChangesAsync();
 
-		return true;
+			return skillImage;
+		}
+		catch (Exception ex)
+		{
+			throw new RepositoryException(ex.Message, ex);
+		}
 	}
 }

@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Portfolio.Core.ExceptionHandles;
 using Portfolio.Domain.Entities;
 using Portfolio.Infra.Context;
 using Portfolio.Infra.Interfaces;
@@ -15,50 +16,81 @@ public class ProjectRepository : BaseRepository<Project>, IProjectRepository
 		_context = context;
 	}
 
-	public async Task<List<Project>> GetActivesProjects()
+	public override async Task<List<Project>> GetAllAsync()
 	{
-		var projects = await _context
-			.Projects.AsNoTracking()
-			.Where(x => x.IsActive == true)
-			.OrderByDescending(x => x.ViewPriority)
-			.Include(x => x.Skills)
-			.Include(x => x.Images)
-			.ToListAsync();
+		try
+		{
+			var projects = await _context
+				.Projects.AsNoTracking()
+				.OrderByDescending(x => x.ViewPriority)
+				.Include(x => x.Skills)
+				.Include(x => x.Images)
+				.ToListAsync();
 
-		return projects;
+			return projects;
+		}
+		catch (Exception ex)
+		{
+			throw new RepositoryException(ex.Message, ex);
+		}
 	}
 
-	public async Task<Project> GetProjectById(int Id)
+	public async Task<List<Project>> GetByIsActive(bool isActive)
 	{
-		var project = await _context
-			.Projects.Include(x => x.Skills)
-			.AsNoTracking()
-			.Where(x => x.Id == Id)
-			.ToListAsync();
+		try
+		{
+			var projects = await _context
+				.Projects.AsNoTracking()
+				.Where(x => x.IsActive == isActive)
+				.OrderByDescending(x => x.ViewPriority)
+				.Include(x => x.Skills)
+				.Include(x => x.Images)
+				.ToListAsync();
 
-		if (project.Count == 0)
-			return null;
-
-		return project.First();
+			return projects;
+		}
+		catch (Exception ex)
+		{
+			throw new RepositoryException(ex.Message, ex);
+		}
 	}
 
-	public async Task<bool> DeleteProject(int id)
+	public override async Task<Project> GetByIdAsync(int Id)
 	{
-		var project = await _context.Projects.AsNoTracking().Where(x => x.Id == id).FirstAsync();
+		try
+		{
+			var project = await _context
+				.Projects.Include(x => x.Skills)
+				.AsNoTracking()
+				.Where(x => x.Id == Id)
+				.ToListAsync();
 
-		if (project is null)
-			return false;
+			return project.First();
+		}
+		catch (Exception ex)
+		{
+			throw new RepositoryException(ex.Message, ex);
+		}
+	}
 
-		project.IsActive = false;
-		project.UpdatedAt = DateTime.Now;
+	public override async Task<Project> DeleteAsync(Project entity)
+	{
+		try
+		{
+			var project = await _context.Projects.AsNoTracking().Where(x => x.Id == entity.Id).FirstAsync();
 
-		_context.Entry(project).State = EntityState.Modified;
+			project.IsActive = false;
+			project.UpdatedAt = DateTime.Now;
 
-		var result = await _context.SaveChangesAsync();
+			_context.Update(project);
 
-		if (result <= 0)
-			return false;
+			await _context.SaveChangesAsync();
 
-		return true;
+			return entity;
+		}
+		catch (Exception ex)
+		{
+			throw new RepositoryException(ex.Message, ex);
+		}
 	}
 }
