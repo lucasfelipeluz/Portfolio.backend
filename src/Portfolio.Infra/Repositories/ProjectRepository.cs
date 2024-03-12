@@ -35,7 +35,7 @@ public class ProjectRepository : BaseRepository<Project>, IProjectRepository
 		}
 	}
 
-	public async Task<List<Project>> GetByIsActive(bool isActive)
+	public async Task<List<Project>> GetByIsActiveAsync(bool isActive)
 	{
 		try
 		{
