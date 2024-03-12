@@ -5,5 +5,5 @@ namespace Portfolio.Services.Interfaces;
 
 public interface IS3Service
 {
-	Task<S3Response> UploadFileAsync(S3Object s3Obj);
+	Task<S3Response> UploadFile(S3Object s3Obj);
 }

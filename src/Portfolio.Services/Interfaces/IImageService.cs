@@ -1,11 +1,12 @@
+using Portfolio.Domain.Entities;
 using Portfolio.Services.Dto;
 
 namespace Portfolio.Services.Interfaces;
 
 public interface IImageService
 {
-	Task<List<ImageDto>> GetAllImagesAsync();
-	Task<ImageDto> GetImageByIdAsync(int id);
-	Task<bool> CreateImageAsync(CreateImageDto imageDto);
-	Task<bool> DeleteImageAsync(int id);
+	Task<List<ImageDto>> Get();
+	Task<ImageDto> GetById(int id);
+	Task<ImageDto> Create(CreateImageDto imageDto);
+	Task<ImageDto> Delete(int id);
 }

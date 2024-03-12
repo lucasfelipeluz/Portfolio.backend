@@ -1,5 +1,6 @@
 using AutoMapper;
 using Portfolio.Core.Enums;
+using Portfolio.Core.ExceptionHandles;
 using Portfolio.Domain.Entities;
 using Portfolio.Infra.Cache;
 using Portfolio.Infra.Interfaces;
@@ -22,61 +23,72 @@ public class AboutMeService : IAboutMeService
 		_cachingRepository = cachingRepository;
 	}
 
-	public async Task<AboutMeDto> GetAboutMeAsync()
+	public async Task<AboutMeDto> Get()
 	{
-		var cache = _cachingRepository.Get<AboutMeDto>(CacheCode.AboutMe);
-
-		if (cache != null)
+		try
 		{
-			return cache;
+			var cache = _cachingRepository.Get<AboutMeDto>(CacheCode.AboutMe);
+
+			if (cache is not null)
+			{
+				return cache;
+			}
+
+			var aboutMe = await _aboutMeRepository.GetAboutMeAsync();
+			var aboutMeDto = _mapper.Map<AboutMeDto>(aboutMe);
+
+			_cachingRepository.Save(CacheCode.AboutMe, aboutMeDto);
+
+			return aboutMeDto;
 		}
-
-		var aboutMe = await _aboutMeRepository.GetAboutMeAsync();
-		var aboutMeDto = _mapper.Map<AboutMeDto>(aboutMe);
-
-		_cachingRepository.Save(CacheCode.AboutMe, aboutMeDto);
-
-		return aboutMeDto;
+		catch (Exception ex)
+		{
+			throw new ServiceException(ex.Message, ex);
+		}
 	}
 
-	public async Task<bool> UpdateAboutMeAsync(AboutMeDto aboutMeDto)
+	public async Task<AboutMeDto> Update(AboutMeDto aboutMeDto)
 	{
-		var aboutMe = await _aboutMeRepository.GetAboutMeAsync();
-
-		if (aboutMe is null)
+		try
 		{
-			var postAboutMe = _mapper.Map<AboutMe>(aboutMeDto);
+			var aboutMe = await Get();
 
-			var isSuccessPost = await _aboutMeRepository.CreateAsync(postAboutMe);
+			if (aboutMe is null)
+			{
+				var postAboutMe = _mapper.Map<AboutMe>(aboutMeDto);
 
-			return isSuccessPost;
+				var newEntity = await _aboutMeRepository.CreateAsync(postAboutMe);
+
+				return _mapper.Map<AboutMeDto>(newEntity);
+			}
+
+			aboutMeDto.Name = string.IsNullOrEmpty(aboutMeDto.Name) ? aboutMe.Name : aboutMeDto.Name;
+			aboutMeDto.Text = string.IsNullOrEmpty(aboutMeDto.Text) ? aboutMe.Text : aboutMeDto.Text;
+			aboutMeDto.JobTitle = string.IsNullOrEmpty(aboutMeDto.JobTitle) ? aboutMe.JobTitle : aboutMeDto.JobTitle;
+			aboutMeDto.GithubLink = string.IsNullOrEmpty(aboutMeDto.GithubLink)
+				? aboutMe.GithubLink
+				: aboutMeDto.GithubLink;
+			aboutMeDto.LinkedinLink = string.IsNullOrEmpty(aboutMeDto.LinkedinLink)
+				? aboutMe.LinkedinLink
+				: aboutMeDto.LinkedinLink;
+			aboutMeDto.InstagramLink = string.IsNullOrEmpty(aboutMeDto.InstagramLink)
+				? aboutMe.InstagramLink
+				: aboutMeDto.InstagramLink;
+			aboutMeDto.TelegramLink = string.IsNullOrEmpty(aboutMeDto.TelegramLink)
+				? aboutMe.TelegramLink
+				: aboutMeDto.TelegramLink;
+			aboutMeDto.IsAvailable = aboutMeDto.IsAvailable;
+
+			var aboutMeMap = _mapper.Map<AboutMe>(aboutMeDto);
+			var updatedEntity = await _aboutMeRepository.UpdateAsync(aboutMeMap);
+
+			_cachingRepository.Remove(CacheCode.AboutMe);
+
+			return _mapper.Map<AboutMeDto>(updatedEntity);
 		}
-
-		aboutMeDto.Name = string.IsNullOrEmpty(aboutMeDto.Name) ? aboutMe.Name : aboutMeDto.Name;
-		aboutMeDto.Text = string.IsNullOrEmpty(aboutMeDto.Text) ? aboutMe.Text : aboutMeDto.Text;
-		aboutMeDto.JobTitle = string.IsNullOrEmpty(aboutMeDto.JobTitle) ? aboutMe.JobTitle : aboutMeDto.JobTitle;
-		aboutMeDto.GithubLink = string.IsNullOrEmpty(aboutMeDto.GithubLink)
-			? aboutMe.GithubLink
-			: aboutMeDto.GithubLink;
-		aboutMeDto.LinkedinLink = string.IsNullOrEmpty(aboutMeDto.LinkedinLink)
-			? aboutMe.LinkedinLink
-			: aboutMeDto.LinkedinLink;
-		aboutMeDto.InstagramLink = string.IsNullOrEmpty(aboutMeDto.InstagramLink)
-			? aboutMe.InstagramLink
-			: aboutMeDto.InstagramLink;
-		aboutMeDto.TelegramLink = string.IsNullOrEmpty(aboutMeDto.TelegramLink)
-			? aboutMe.TelegramLink
-			: aboutMeDto.TelegramLink;
-		aboutMeDto.IsAvailable = aboutMeDto.IsAvailable;
-
-		var aboutMeMap = _mapper.Map<AboutMe>(aboutMeDto);
-		var isSuccess = await _aboutMeRepository.UpdateAboutMeAsync(aboutMeMap);
-
-		if (!isSuccess)
-			return false;
-
-		_cachingRepository.Remove(CacheCode.AboutMe);
-
-		return true;
+		catch (Exception ex)
+		{
+			throw new ServiceException(ex.Message, ex);
+		}
 	}
 }

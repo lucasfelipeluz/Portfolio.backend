@@ -9,7 +9,7 @@ namespace Portfolio.Services;
 
 public class S3Service : IS3Service
 {
-	public async Task<S3Response> UploadFileAsync(S3Object s3Obj)
+	public async Task<S3Response> UploadFile(S3Object s3Obj)
 	{
 		var response = new S3Response();
 

@@ -1,5 +1,6 @@
 using AutoMapper;
 using Portfolio.Core.Enums;
+using Portfolio.Core.ExceptionHandles;
 using Portfolio.Domain.Entities;
 using Portfolio.Infra.Cache;
 using Portfolio.Infra.Interfaces;
@@ -25,65 +26,82 @@ public class SystemVariableService : ISystemVariableService
 		_cachingRepository = cachingRepository;
 	}
 
-	public async Task<List<SystemVariableDto>> GetAllSystemVariablesAsync()
+	public async Task<List<SystemVariableDto>> Get()
 	{
-		var cache = _cachingRepository.Get<List<SystemVariableDto>>(CacheCode.SystemVariable);
-
-		if (cache != null)
+		try
 		{
-			return cache;
-		}
+			var cache = _cachingRepository.Get<List<SystemVariableDto>>(CacheCode.SystemVariable);
 
-		var systemVariables = await _systemVariablesRepository.GetAllAsync();
-		var systemVariablesDto = _mapper.Map<List<SystemVariableDto>>(systemVariables);
-
-		_cachingRepository.Save(CacheCode.SystemVariable, systemVariablesDto);
-
-		return systemVariablesDto;
-	}
-
-	public async Task<SystemVariableDto> GetSystemVariableAsync(string key)
-	{
-		var cache = _cachingRepository.Get<List<SystemVariableDto>>(CacheCode.SystemVariable);
-		if (cache is not null)
-		{
-			var cacheSystemVariable = cache.Find(x => x.Name == key);
-
-			if (cacheSystemVariable is not null)
+			if (cache is not null)
 			{
-				return cacheSystemVariable;
+				return cache;
 			}
+
+			var systemVariables = await _systemVariablesRepository.GetAllAsync();
+			var systemVariablesDto = _mapper.Map<List<SystemVariableDto>>(systemVariables);
+
+			_cachingRepository.Save(CacheCode.SystemVariable, systemVariablesDto);
+
+			return systemVariablesDto;
 		}
-
-		var systemVariables = await _systemVariablesRepository.GetVariableAsync(key);
-		var systemVariableDto = _mapper.Map<SystemVariableDto>(systemVariables);
-
-		return systemVariableDto;
+		catch (Exception ex)
+		{
+			throw new ServiceException(ex.Message, ex);
+		}
 	}
 
-	public async Task<bool> UpdateSystemVariableAsync(SystemVariableDto systemVariableDto)
+	public async Task<SystemVariableDto> GetByKey(string key)
 	{
-		var isSystemVariableExists = await _systemVariablesRepository.GetVariableAsync(systemVariableDto.Name);
-
-		var systemVariable = _mapper.Map<SystemVariable>(systemVariableDto);
-
-		if (isSystemVariableExists is null)
+		try
 		{
-			var isCreateSuccess = await _systemVariablesRepository.CreateAsync(systemVariable);
-			if (!isCreateSuccess)
-				return false;
+			var cache = _cachingRepository.Get<List<SystemVariableDto>>(CacheCode.SystemVariable);
+			if (cache is not null)
+			{
+				var cacheSystemVariable = cache.Find(x => x.Name == key);
+
+				if (cacheSystemVariable is not null)
+				{
+					return cacheSystemVariable;
+				}
+			}
+
+			var systemVariables = await _systemVariablesRepository.GetByName(key);
+			var systemVariableDto = _mapper.Map<SystemVariableDto>(systemVariables);
+
+			return systemVariableDto;
+		}
+		catch (Exception ex)
+		{
+			throw new ServiceException(ex.Message, ex);
+		}
+	}
+
+	public async Task<SystemVariableDto> Update(SystemVariableDto systemVariableDto)
+	{
+		try
+		{
+			var isSystemVariableExists = await GetByKey(systemVariableDto.Name);
+
+			var systemVariable = _mapper.Map<SystemVariable>(systemVariableDto);
+
+			if (isSystemVariableExists is null)
+			{
+				var createdSystemVariable = await _systemVariablesRepository.CreateAsync(systemVariable);
+
+				_cachingRepository.Remove(CacheCode.SystemVariable);
+
+				return _mapper.Map<SystemVariableDto>(createdSystemVariable);
+			}
+
+			var updatedSystemVariable = await _systemVariablesRepository.UpdateAsync(systemVariable);
 
 			_cachingRepository.Remove(CacheCode.SystemVariable);
 
-			return true;
+			return _mapper.Map<SystemVariableDto>(updatedSystemVariable);
 		}
-
-		var isUpdateSuccess = await _systemVariablesRepository.UpdateAsync(systemVariable);
-		if (!isUpdateSuccess)
-			return false;
-
-		_cachingRepository.Remove(CacheCode.SystemVariable);
-
-		return true;
+		catch (Exception ex)
+		{
+			throw new ServiceException(ex.Message, ex);
+		}
 	}
 }

@@ -4,6 +4,6 @@ namespace Portfolio.Services.Interfaces;
 
 public interface IAboutMeService
 {
-	Task<AboutMeDto> GetAboutMeAsync();
-	Task<bool> UpdateAboutMeAsync(AboutMeDto aboutMeDto);
+	Task<AboutMeDto> Get();
+	Task<AboutMeDto> Update(AboutMeDto aboutMeDto);
 }

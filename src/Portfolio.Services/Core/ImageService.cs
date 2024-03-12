@@ -21,7 +21,7 @@ public class ImageService : IImageService
 		_cachingRepository = cachingRepository;
 	}
 
-	public async Task<List<ImageDto>> GetAllImagesAsync()
+	public async Task<List<ImageDto>> Get()
 	{
 		var cache = _cachingRepository.Get<List<ImageDto>>(CacheCode.Image);
 		if (cache is not null)
@@ -37,7 +37,7 @@ public class ImageService : IImageService
 		return imagesDto;
 	}
 
-	public async Task<ImageDto> GetImageByIdAsync(int id)
+	public async Task<ImageDto> GetById(int id)
 	{
 		var cache = _cachingRepository.Get<List<ImageDto>>(CacheCode.Image);
 		if (cache is not null)
@@ -55,19 +55,19 @@ public class ImageService : IImageService
 		return _mapper.Map<ImageDto>(image);
 	}
 
-	public async Task<bool> CreateImageAsync(CreateImageDto imageDto)
+	public async Task<ImageDto> Create(CreateImageDto imageDto)
 	{
 		var image = new Image { Name = imageDto.Name, Folder = imageDto.Folder, };
 
-		var newImage = await _imageRepository.CreateAsync(image, true);
+		var newImage = await _imageRepository.CreateAsync(image);
 
-		if (imageDto.ProjectId != null && imageDto.ProjectId != 0)
+		if (imageDto.ProjectId is not null && imageDto.ProjectId != 0)
 		{
 			var projectImage = new ProjectImage { ProjectId = imageDto.ProjectId.Value, ImageId = newImage.Id, };
 
 			await _imageRepository.AddRelationshipWithProject(projectImage);
 		}
-		else if (imageDto.SkillId != null && imageDto.SkillId != 0)
+		else if (imageDto.SkillId is not null && imageDto.SkillId != 0)
 		{
 			var skillImage = new SkillImage { SkillId = imageDto.SkillId.Value, ImageId = newImage.Id, };
 
@@ -76,22 +76,19 @@ public class ImageService : IImageService
 
 		_cachingRepository.Remove(CacheCode.Image);
 
-		return true;
+		return _mapper.Map<ImageDto>(newImage);
 	}
 
-	public async Task<bool> DeleteImageAsync(int id)
+	public async Task<ImageDto> Delete(int id)
 	{
-		var image = await _imageRepository.GetByIdAsync(id);
+		var imageDto = await GetById(id);
 
-		if (image == null)
-			return false;
+		var image = _mapper.Map<Image>(imageDto);
 
-		var isSuccess = await _imageRepository.DeleteAsync(image);
-		if (!isSuccess)
-			return false;
+		var deletedImage = await _imageRepository.DeleteAsync(image);
 
 		_cachingRepository.Remove(CacheCode.Image);
 
-		return true;
+		return _mapper.Map<ImageDto>(deletedImage);
 	}
 }

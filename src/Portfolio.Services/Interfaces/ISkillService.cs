@@ -4,11 +4,10 @@ namespace Portfolio.Services.Interfaces;
 
 public interface ISkillService
 {
-	Task<List<SkillDto>> GetAllSkillsAsync();
-	Task<List<SkillDto>> GetAllSkillsAsync(bool isActive);
-	Task<SkillDto> GetSkillByIdAsync(int id);
-	Task<bool> CreateSkillAsync(SkillDto skillDto);
-	Task<SkillDto> CreateSkillAsync(SkillDto skillDto, bool returnEntity);
-	Task<bool> UpdateSkillAsync(SkillDto skillDto);
-	Task<bool> DeleteSkillAsync(int id);
+	Task<List<SkillDto>> Get();
+	Task<List<SkillDto>> GetByIsActive(bool isActive);
+	Task<SkillDto> GetById(int id);
+	Task<SkillDto> Create(SkillDto skillDto);
+	Task<SkillDto> Update(SkillDto skillDto);
+	Task<SkillDto> Delete(int id);
 }

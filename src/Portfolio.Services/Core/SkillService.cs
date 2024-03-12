@@ -1,5 +1,6 @@
 using AutoMapper;
 using Portfolio.Core.Enums;
+using Portfolio.Core.ExceptionHandles;
 using Portfolio.Domain.Entities;
 using Portfolio.Infra.Cache;
 using Portfolio.Infra.Interfaces;
@@ -21,123 +22,144 @@ public class SkillService : ISkillService
 		_cachingRepository = cachingRepository;
 	}
 
-	public async Task<List<SkillDto>> GetAllSkillsAsync()
+	public async Task<List<SkillDto>> Get()
 	{
-		var cache = _cachingRepository.Get<List<SkillDto>>(CacheCode.Skill);
-
-		if (cache != null)
+		try
 		{
-			return cache;
+			var cache = _cachingRepository.Get<List<SkillDto>>(CacheCode.Skill);
+
+			if (cache is not null)
+			{
+				return cache;
+			}
+
+			var skills = await _skillRepository.GetAllAsync();
+			var skillDto = _mapper.Map<List<SkillDto>>(skills);
+
+			_cachingRepository.Save(CacheCode.Skill, skillDto);
+
+			return skillDto;
 		}
-
-		var skills = await _skillRepository.GetAllAsync();
-		var skillDto = _mapper.Map<List<SkillDto>>(skills);
-
-		_cachingRepository.Save(CacheCode.Skill, skillDto);
-
-		return skillDto;
-	}
-
-	public async Task<List<SkillDto>> GetAllSkillsAsync(bool isActive)
-	{
-		var cache = _cachingRepository.Get<List<SkillDto>>(CacheCode.Skill);
-
-		if (cache != null)
+		catch (Exception ex)
 		{
-			return cache.Where(x => x.IsActive == isActive).ToList();
+			throw new ServiceException(ex.Message, ex);
 		}
-
-		var skills = await _skillRepository.GetActivesSkills();
-		var skillDto = _mapper.Map<List<SkillDto>>(skills);
-
-		_cachingRepository.Save(CacheCode.Skill, skillDto);
-
-		return skillDto;
 	}
 
-	public async Task<SkillDto> GetSkillByIdAsync(int id)
+	public async Task<List<SkillDto>> GetByIsActive(bool isActive)
 	{
-		var cache = _cachingRepository.Get<List<SkillDto>>(CacheCode.Skill);
-
-		if (cache is not null)
+		try
 		{
-			var cacheSkill = cache.Find(x => x.Id == id);
+			var cache = _cachingRepository.Get<List<SkillDto>>(CacheCode.Skill);
 
-			if (cacheSkill is not null)
-				return cacheSkill;
+			if (cache is not null)
+			{
+				return cache.Where(x => x.IsActive == isActive).ToList();
+			}
+
+			var skills = await _skillRepository.GetByIsActive(isActive);
+			var skillDto = _mapper.Map<List<SkillDto>>(skills);
+
+			_cachingRepository.Save(CacheCode.Skill, skillDto);
+
+			return skillDto;
 		}
-
-		var skill = await _skillRepository.GetByIdAsync(id);
-		var skillDto = _mapper.Map<SkillDto>(skill);
-
-		return skillDto;
+		catch (Exception ex)
+		{
+			throw new ServiceException(ex.Message, ex);
+		}
 	}
 
-	public async Task<bool> CreateSkillAsync(SkillDto skillDto)
+	public async Task<SkillDto> GetById(int id)
 	{
-		var skill = _mapper.Map<Skill>(skillDto);
+		try
+		{
+			var cache = _cachingRepository.Get<List<SkillDto>>(CacheCode.Skill);
 
-		skill.IsActive = true;
+			if (cache is not null)
+			{
+				var cacheSkill = cache.Find(x => x.Id == id);
 
-		var isSuccess = await _skillRepository.CreateAsync(skill);
-		if (!isSuccess)
-			return false;
+				if (cacheSkill is not null)
+					return cacheSkill;
+			}
 
-		_cachingRepository.Remove(CacheCode.Skill);
+			var skill = await _skillRepository.GetByIdAsync(id);
+			var skillDto = _mapper.Map<SkillDto>(skill);
 
-		return true;
+			return skillDto;
+		}
+		catch (Exception ex)
+		{
+			throw new ServiceException(ex.Message, ex);
+		}
 	}
 
-	public async Task<SkillDto> CreateSkillAsync(SkillDto skillDto, bool returnEntity)
+	public async Task<SkillDto> Create(SkillDto skillDto)
 	{
-		var skill = _mapper.Map<Skill>(skillDto);
+		try
+		{
+			var skill = _mapper.Map<Skill>(skillDto);
 
-		skill.IsActive = true;
+			skill.IsActive = true;
 
-		var entity = await _skillRepository.CreateAsync(skill, returnEntity);
-		if (entity is null)
-			return null;
+			var createdSkill = await _skillRepository.CreateAsync(skill);
 
-		var createdSkill = _mapper.Map<SkillDto>(entity);
+			_cachingRepository.Remove(CacheCode.Skill);
 
-		_cachingRepository.Remove(CacheCode.Skill);
-
-		return createdSkill;
+			return _mapper.Map<SkillDto>(createdSkill);
+		}
+		catch (Exception ex)
+		{
+			throw new ServiceException(ex.Message, ex);
+		}
 	}
 
-	public async Task<bool> UpdateSkillAsync(SkillDto skillDto)
+	public async Task<SkillDto> Update(SkillDto skillDto)
 	{
-		var skillExists = await _skillRepository.GetByIdAsync(skillDto.Id);
+		try
+		{
+			var skillExists = await GetById(skillDto.Id);
 
-		if (skillExists == null)
-			return false;
+			if (skillExists is null)
+				throw new NotFoundEntityException("Skill not found");
 
-		var skill = _mapper.Map<Skill>(skillDto);
-		skill.CreatedAt = skillExists.CreatedAt;
-		skill.UpdatedAt = DateTime.Now;
+			var skill = _mapper.Map<Skill>(skillDto);
+			skill.CreatedAt = skillExists.CreatedAt;
+			skill.UpdatedAt = DateTime.Now;
 
-		var isSuccess = await _skillRepository.UpdateAsync(skill);
-		if (!isSuccess)
-			return false;
+			var updatedSkill = await _skillRepository.UpdateAsync(skill);
 
-		_cachingRepository.Remove(CacheCode.Skill);
+			_cachingRepository.Remove(CacheCode.Skill);
 
-		return true;
+			return _mapper.Map<SkillDto>(updatedSkill);
+		}
+		catch (Exception ex)
+		{
+			throw new ServiceException(ex.Message, ex);
+		}
 	}
 
-	public async Task<bool> DeleteSkillAsync(int id)
+	public async Task<SkillDto> Delete(int id)
 	{
-		var project = await _skillRepository.GetByIdAsync(id);
+		try
+		{
+			var skillDto = await GetById(id);
 
-		if (project == null)
-			return false;
+			if (skillDto is null)
+				throw new NotFoundEntityException("Skill not found");
 
-		var isSuccess = await _skillRepository.DeleteSkill(id);
-		if (!isSuccess)
-			return false;
+			var skill = _mapper.Map<Skill>(skillDto);
 
-		_cachingRepository.Remove(CacheCode.Skill);
+			var deletedSkill = await _skillRepository.DeleteAsync(skill);
 
-		return true;
+			_cachingRepository.Remove(CacheCode.Skill);
+
+			return _mapper.Map<SkillDto>(deletedSkill);
+		}
+		catch (Exception ex)
+		{
+			throw new ServiceException(ex.Message, ex);
+		}
 	}
 }

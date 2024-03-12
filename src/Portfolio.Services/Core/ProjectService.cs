@@ -1,6 +1,7 @@
 using AutoMapper;
 using Microsoft.VisualBasic;
 using Portfolio.Core.Enums;
+using Portfolio.Core.ExceptionHandles;
 using Portfolio.Domain.Entities;
 using Portfolio.Infra.Cache;
 using Portfolio.Infra.Interfaces;
@@ -22,127 +23,145 @@ public class ProjectService : IProjectService
 		_cachingRepository = cachingRepository;
 	}
 
-	public async Task<List<ProjectDto>> GetAllProjectsAsync()
+	public async Task<List<ProjectDto>> Get()
 	{
-		var cache = _cachingRepository.Get<List<ProjectDto>>(CacheCode.Project);
-
-		if (cache is not null)
+		try
 		{
-			return cache;
-		}
+			var cache = _cachingRepository.Get<List<ProjectDto>>(CacheCode.Project);
 
-		var projects = await _projectRepository.GetAllAsync();
-		var projectsDto = _mapper.Map<List<ProjectDto>>(projects);
-
-		_cachingRepository.Save(CacheCode.Project, projectsDto);
-
-		return projectsDto;
-	}
-
-	public async Task<List<ProjectDto>> GetAllProjectsAsync(bool isActive)
-	{
-		var cache = _cachingRepository.Get<List<ProjectDto>>(CacheCode.Project);
-
-		if (cache is not null)
-		{
-			return cache.Where(x => x.IsActive == isActive).ToList();
-		}
-
-		var projects = await _projectRepository.GetActivesProjects();
-		var projectsDto = _mapper.Map<List<ProjectDto>>(projects);
-
-		_cachingRepository.Save(CacheCode.Project, projectsDto);
-
-		return projectsDto;
-	}
-
-	public async Task<ProjectDto> GetProjectByIdAsync(int id)
-	{
-		var cache = _cachingRepository.Get<List<ProjectDto>>(CacheCode.Project);
-
-		if (cache is not null)
-		{
-			var cacheProduct = cache.Find(x => x.Id == id);
-
-			if (cacheProduct != null)
+			if (cache is not null)
 			{
-				return cacheProduct;
+				return cache;
 			}
+
+			var projects = await _projectRepository.GetAllAsync();
+			var projectsDto = _mapper.Map<List<ProjectDto>>(projects);
+
+			_cachingRepository.Save(CacheCode.Project, projectsDto);
+
+			return projectsDto;
 		}
-
-		var project = await _projectRepository.GetProjectById(id);
-
-		return _mapper.Map<ProjectDto>(project);
-		;
+		catch (Exception ex)
+		{
+			throw new ServiceException(ex.Message, ex);
+		}
 	}
 
-	public async Task<bool> CreateProjectAsync(ProjectDto entity)
+	public async Task<List<ProjectDto>> GetByIsActive(bool isActive)
 	{
-		var project = _mapper.Map<Project>(entity);
+		try
+		{
+			var cache = _cachingRepository.Get<List<ProjectDto>>(CacheCode.Project);
 
-		project.IsActive = true;
+			if (cache is not null)
+			{
+				return cache.Where(x => x.IsActive == isActive).ToList();
+			}
 
-		var isSuccess = await _projectRepository.CreateAsync(project);
-		if (!isSuccess)
-			return false;
+			var projects = await _projectRepository.GetByIsActiveAsync(isActive);
+			var projectsDto = _mapper.Map<List<ProjectDto>>(projects);
 
-		_cachingRepository.Remove(CacheCode.Project);
+			_cachingRepository.Save(CacheCode.Project, projectsDto);
 
-		return true;
+			return projectsDto;
+		}
+		catch (Exception ex)
+		{
+			throw new ServiceException(ex.Message, ex);
+		}
 	}
 
-	public async Task<ProjectDto> CreateProjectAsync(ProjectDto entity, bool returnEntity)
+	public async Task<ProjectDto> GetById(int id)
 	{
-		var project = _mapper.Map<Project>(entity);
+		try
+		{
+			var cache = _cachingRepository.Get<List<ProjectDto>>(CacheCode.Project);
 
-		project.IsActive = true;
+			if (cache is not null)
+			{
+				var cacheProduct = cache.Find(x => x.Id == id);
 
-		var createdProject = await _projectRepository.CreateAsync(project, returnEntity);
+				if (cacheProduct is not null)
+				{
+					return cacheProduct;
+				}
+			}
 
-		if (createdProject is null)
-			return null;
+			var project = await _projectRepository.GetByIdAsync(id);
 
-		var projectDto = _mapper.Map<ProjectDto>(createdProject);
-
-		_cachingRepository.Remove(CacheCode.Project);
-
-		return projectDto;
+			return _mapper.Map<ProjectDto>(project);
+		}
+		catch (Exception ex)
+		{
+			throw new ServiceException(ex.Message, ex);
+		}
 	}
 
-	public async Task<bool> UpdateProjectAsync(ProjectDto projectDto)
+	public async Task<ProjectDto> Create(ProjectDto entity)
 	{
-		var projectExists = await _projectRepository.GetByIdAsync(projectDto.Id);
+		try
+		{
+			var project = _mapper.Map<Project>(entity);
 
-		if (projectExists == null)
-			return false;
+			project.IsActive = true;
 
-		var project = _mapper.Map<Project>(projectDto);
-		project.CreatedAt = projectExists.CreatedAt;
-		project.UpdatedAt = DateTime.Now;
+			var createdProject = await _projectRepository.CreateAsync(project);
 
-		var isSuccess = await _projectRepository.UpdateAsync(project);
-		if (!isSuccess)
-			return false;
+			_cachingRepository.Remove(CacheCode.Project);
 
-		_cachingRepository.Remove(CacheCode.Project);
-
-		return true;
+			return _mapper.Map<ProjectDto>(createdProject);
+		}
+		catch (Exception ex)
+		{
+			throw new ServiceException(ex.Message, ex);
+		}
 	}
 
-	public async Task<bool> DeleteProjectAsync(int id)
+	public async Task<ProjectDto> Update(ProjectDto projectDto)
 	{
-		var project = await _projectRepository.GetByIdAsync(id);
+		try
+		{
+			var projectExists = await GetById(projectDto.Id);
 
-		if (project == null)
-			return false;
+			if (projectExists is null)
+				throw new NotFoundEntityException("Project not found.");
 
-		var response = await _projectRepository.DeleteProject(id);
+			var project = _mapper.Map<Project>(projectDto);
+			project.CreatedAt = projectExists.CreatedAt;
+			project.UpdatedAt = DateTime.Now;
 
-		if (!response)
-			return false;
+			var updatedProject = await _projectRepository.UpdateAsync(project);
 
-		_cachingRepository.Remove(CacheCode.Project);
+			_cachingRepository.Remove(CacheCode.Project);
 
-		return true;
+			return _mapper.Map<ProjectDto>(updatedProject);
+		}
+		catch (Exception ex)
+		{
+			throw new ServiceException(ex.Message, ex);
+		}
+	}
+
+	public async Task<ProjectDto> Delete(int id)
+	{
+		try
+		{
+			var projectDto = await GetById(id);
+
+			if (projectDto is null)
+				throw new NotFoundEntityException("Project not found.");
+
+			var project = _mapper.Map<Project>(projectDto);
+
+			var deletedProject = await _projectRepository.DeleteAsync(project);
+
+			_cachingRepository.Remove(CacheCode.Project);
+
+			return _mapper.Map<ProjectDto>(deletedProject);
+		}
+		catch (Exception ex)
+		{
+			throw new ServiceException(ex.Message, ex);
+		}
 	}
 }
