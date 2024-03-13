@@ -44,6 +44,20 @@ public class Responses
 		return new ResultViewModel { Message = message, Success = false };
 	}
 
+	public static ResultViewModel ServiceUnavailableErrorMessage()
+	{
+		return new ResultViewModel
+		{
+			Message = "O serviço está indisponível no momento, por favor tente novamente mais tarde.",
+			Success = false,
+		};
+	}
+
+	public static ResultViewModel ServiceUnavailableErrorMessage(string message)
+	{
+		return new ResultViewModel { Message = message, Success = false, };
+	}
+
 	public static ResultViewModel UnauthorizedErrorMessage()
 	{
 		return new ResultViewModel { Message = "A combinação de login e senha está incorreta!", Success = false, };

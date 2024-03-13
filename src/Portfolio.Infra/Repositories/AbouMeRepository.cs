@@ -22,6 +22,11 @@ public class AboutMeRepository : BaseRepository<AboutMe>, IAboutMeRepository
 		{
 			var aboutMe = await _context.Set<AboutMe>().AsNoTracking().OrderBy(e => e.CreatedAt).ToListAsync();
 
+			if (aboutMe.Count == 0 || aboutMe is null)
+			{
+				return null;
+			}
+
 			return aboutMe.Last();
 		}
 		catch (Exception ex)

@@ -59,9 +59,16 @@ public class FilesController : ControllerBase
 			SkillId = uploadImageViewModel.SkillId,
 		};
 
-		await _imageService.Create(createImageDto);
+		if (result.Success)
+			await _imageService.Create(createImageDto);
 
 		FileHandlerHelper.DeleteFile(fileName);
+
+		if (!result.Success)
+			return StatusCode(
+				StatusCodes.Status503ServiceUnavailable,
+				Responses.ServiceUnavailableErrorMessage(result.Message)
+			);
 
 		return Ok(Responses.SuccessMessage(result.Message));
 	}

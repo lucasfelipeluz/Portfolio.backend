@@ -31,7 +31,7 @@ public class ExceptionHandlerMiddleware
 	{
 		bool isDevelopmentMode = Environment.GetEnvironmentVariable("SERVER_MODE") == "development";
 
-		var response = isDevelopmentMode
+		ViewModels.ResultViewModel response = isDevelopmentMode
 			? Responses.InternalServerErrorMessage()
 			: Responses.InternalServerErrorMessage(ex.Message);
 

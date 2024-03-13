@@ -78,6 +78,7 @@ public class AboutMeService : IAboutMeService
 				? aboutMe.TelegramLink
 				: aboutMeDto.TelegramLink;
 			aboutMeDto.IsAvailable = aboutMeDto.IsAvailable;
+			aboutMeDto.Address = string.IsNullOrEmpty(aboutMeDto.Address) ? aboutMe.Address : aboutMeDto.Address;
 
 			var aboutMeMap = _mapper.Map<AboutMe>(aboutMeDto);
 			var updatedEntity = await _aboutMeRepository.UpdateAsync(aboutMeMap);
