@@ -4,5 +4,5 @@ namespace Portfolio.Infra.Interfaces;
 
 public interface IUserRepository : IBaseRepository<User>
 {
-	public Task<User> GetUserByNickName(string nickName);
+	public Task<User> GetByNickName(string nickName);
 }

@@ -25,16 +25,9 @@ public class ActivityController : ControllerBase
 	[Authorize]
 	public async Task<IActionResult> GetAsync()
 	{
-		try
-		{
-			var activities = await _activityService.GetAllActivitiesAsync();
+		var activities = await _activityService.Get();
 
-			return Ok(activities);
-		}
-		catch (Exception)
-		{
-			return StatusCode(StatusCodes.Status500InternalServerError, Responses.InternalServerErrorMessage());
-		}
+		return Ok(activities);
 	}
 
 	[HttpGet]
@@ -42,61 +35,34 @@ public class ActivityController : ControllerBase
 	[Authorize]
 	public async Task<IActionResult> GetByIdAsync(int id)
 	{
-		try
-		{
-			var activity = await _activityService.GetActivityByIdAsync(id);
+		var activity = await _activityService.GetById(id);
 
-			if (activity == null)
-			{
-				return NotFound(Responses.NotFoundErrorMessage("Activity not found!"));
-			}
+		if (activity is null)
+			return NotFound(Responses.NotFoundErrorMessage("Activity not found!"));
 
-			return Ok(activity);
-		}
-		catch (Exception)
-		{
-			return StatusCode(StatusCodes.Status500InternalServerError, Responses.InternalServerErrorMessage());
-		}
+		return Ok(activity);
 	}
 
 	[HttpPost]
 	[Authorize]
 	public async Task<IActionResult> PostAsync([FromBody] CreateActivityViewModel createActivityViewModel)
 	{
-		try
-		{
-			var activityDto = _mapper.Map<ActivityDto>(createActivityViewModel);
+		var activityDto = _mapper.Map<ActivityDto>(createActivityViewModel);
 
-			var isSuccess = await _activityService.CreateActivityAsync(activityDto);
-			if (!isSuccess)
-				return StatusCode(StatusCodes.Status500InternalServerError, Responses.InternalServerErrorMessage());
+		await _activityService.Create(activityDto);
 
-			return Created("api/v1/activity", Responses.SuccessMessage("Activity created successfully!"));
-		}
-		catch (Exception)
-		{
-			return StatusCode(StatusCodes.Status500InternalServerError, Responses.InternalServerErrorMessage());
-		}
+		return Created("api/v1/activity", Responses.SuccessMessage("Activity created successfully!"));
 	}
 
 	[HttpPut]
 	[Authorize]
 	public async Task<IActionResult> PutAsync([FromBody] UpdateActivityViewModel updateActivityViewModel)
 	{
-		try
-		{
-			var activityDto = _mapper.Map<ActivityDto>(updateActivityViewModel);
+		var activityDto = _mapper.Map<ActivityDto>(updateActivityViewModel);
 
-			var isSuccess = await _activityService.UpdateActivityAsync(activityDto);
-			if (!isSuccess)
-				return StatusCode(StatusCodes.Status500InternalServerError, Responses.InternalServerErrorMessage());
+		await _activityService.Update(activityDto);
 
-			return Ok(Responses.SuccessMessage("Activity updated successfully!"));
-		}
-		catch (Exception)
-		{
-			return StatusCode(StatusCodes.Status500InternalServerError, Responses.InternalServerErrorMessage());
-		}
+		return Ok(Responses.SuccessMessage("Activity updated successfully!"));
 	}
 
 	[HttpDelete]
@@ -104,17 +70,8 @@ public class ActivityController : ControllerBase
 	[Authorize]
 	public async Task<IActionResult> DeleteAsync(int id)
 	{
-		try
-		{
-			var isSuccess = await _activityService.DeleteActivityAsync(id);
-			if (!isSuccess)
-				return StatusCode(StatusCodes.Status500InternalServerError, Responses.InternalServerErrorMessage());
+		await _activityService.Delete(id);
 
-			return Ok(Responses.SuccessMessage("Activity deleted successfully!"));
-		}
-		catch (Exception)
-		{
-			return StatusCode(StatusCodes.Status500InternalServerError, Responses.InternalServerErrorMessage());
-		}
+		return Ok(Responses.SuccessMessage("Activity deleted successfully!"));
 	}
 }

@@ -9,7 +9,7 @@ namespace Portfolio.Services;
 
 public class S3Service : IS3Service
 {
-	public async Task<S3Response> UploadFileAsync(S3Object s3Obj)
+	public async Task<S3Response> UploadFile(S3Object s3Obj)
 	{
 		var response = new S3Response();
 
@@ -22,8 +22,8 @@ public class S3Service : IS3Service
 
 			if (statusConnectAWS == "false")
 			{
-				response.StatusCode = 200;
-				response.Message = $"{s3Obj.Name} has been uploaded successfully!";
+				response.Success = false;
+				response.Message = "Image upload is disabled!";
 
 				return response;
 			}
@@ -52,21 +52,21 @@ public class S3Service : IS3Service
 
 			await transferUtility.UploadAsync(uploadRequest);
 
-			response.StatusCode = 200;
+			response.Success = true;
 			response.Message = $"{s3Obj.Name} has been uploaded successfully!";
 
 			return response;
 		}
 		catch (AmazonS3Exception s3Exception)
 		{
-			response.StatusCode = (int)s3Exception.StatusCode;
+			response.Success = false;
 			response.Message = s3Exception.Message;
 
 			return response;
 		}
 		catch (Exception ex)
 		{
-			response.StatusCode = 500;
+			response.Success = false;
 			response.Message = ex.Message;
 
 			return response;

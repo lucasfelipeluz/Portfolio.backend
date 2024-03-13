@@ -26,50 +26,50 @@ public class FilesController : ControllerBase
 	[Authorize]
 	public async Task<IActionResult> UploadImage([FromBody] UploadImageViewModel uploadImageViewModel)
 	{
-		try
+		if (uploadImageViewModel.SkillId == 0 && uploadImageViewModel.ProjectId == 0)
+			return BadRequest(Responses.InternalServerErrorMessage("You must provide a project or a skill id"));
+
+		// Creating the file info
+		string folderName = uploadImageViewModel.ProjectId != 0 ? "project" : "skill";
+		int? entityId =
+			uploadImageViewModel.ProjectId != 0 ? uploadImageViewModel.ProjectId : uploadImageViewModel.SkillId;
+		string fileName = $"{folderName}_{entityId}{Guid.NewGuid()}.jpg";
+
+		// Upload to AWS S3
+		FileHandlerHelper.ConvertBase64ToSavedFile(uploadImageViewModel.Base64, fileName);
+		var fileInfo = FileHandlerHelper.GetFileToBytesArray(fileName);
+		var stream = new MemoryStream(fileInfo);
+
+		var s3Obj = new S3Object()
 		{
-			if (uploadImageViewModel.SkillId == 0 && uploadImageViewModel.ProjectId == 0)
-				return BadRequest(Responses.InternalServerErrorMessage("You must provide a project or a skill id"));
+			BucketName = Environment.GetEnvironmentVariable("AWS_BUCKET_NAME"),
+			InputString = stream,
+			Name = fileName,
+			Folder = folderName,
+		};
 
-			// Creating the file info
-			string folderName = uploadImageViewModel.ProjectId != 0 ? "project" : "skill";
-			int? entityId =
-				uploadImageViewModel.ProjectId != 0 ? uploadImageViewModel.ProjectId : uploadImageViewModel.SkillId;
-			string fileName = $"{folderName}_{entityId}{Guid.NewGuid()}.jpg";
+		var result = await _s3Service.UploadFile(s3Obj);
 
-			// Upload to AWS S3
-			FileHandlerHelper.ConvertBase64ToSavedFile(uploadImageViewModel.Base64, fileName);
-			var fileInfo = FileHandlerHelper.GetFileToBytesArray(fileName);
-			var stream = new MemoryStream(fileInfo);
-
-			var s3Obj = new S3Object()
-			{
-				BucketName = Environment.GetEnvironmentVariable("AWS_BUCKET_NAME"),
-				InputString = stream,
-				Name = fileName,
-				Folder = folderName,
-			};
-
-			var result = await _s3Service.UploadFileAsync(s3Obj);
-
-			// Saving records to the database
-			var createImageDto = new CreateImageDto
-			{
-				Name = fileName,
-				Folder = folderName,
-				ProjectId = uploadImageViewModel.ProjectId,
-				SkillId = uploadImageViewModel.SkillId,
-			};
-
-			await _imageService.CreateImageAsync(createImageDto);
-
-			FileHandlerHelper.DeleteFile(fileName);
-
-			return Ok(Responses.SuccessMessage(result.Message));
-		}
-		catch (Exception)
+		// Saving records to the database
+		var createImageDto = new CreateImageDto
 		{
-			return StatusCode(StatusCodes.Status500InternalServerError, Responses.InternalServerErrorMessage());
-		}
+			Name = fileName,
+			Folder = folderName,
+			ProjectId = uploadImageViewModel.ProjectId,
+			SkillId = uploadImageViewModel.SkillId,
+		};
+
+		if (result.Success)
+			await _imageService.Create(createImageDto);
+
+		FileHandlerHelper.DeleteFile(fileName);
+
+		if (!result.Success)
+			return StatusCode(
+				StatusCodes.Status503ServiceUnavailable,
+				Responses.ServiceUnavailableErrorMessage(result.Message)
+			);
+
+		return Ok(Responses.SuccessMessage(result.Message));
 	}
 }

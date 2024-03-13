@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Portfolio.Core.ExceptionHandles;
 using Portfolio.Domain.Entities;
 using Portfolio.Infra.Context;
 
@@ -14,64 +15,128 @@ public class BaseRepository<T> : IBaseRepository<T>
 		_context = context;
 	}
 
-	public async Task<List<T>> GetAllAsync()
+	public virtual async Task<List<T>> GetAllAsync()
 	{
-		var entities = await _context.Set<T>().AsNoTracking().ToListAsync();
-
-		return entities;
+		try
+		{
+			var entities = await _context.Set<T>().AsNoTracking().ToListAsync();
+			return entities;
+		}
+		catch (Exception ex)
+		{
+			throw new RepositoryException(ex.Message, ex);
+		}
 	}
 
-	public async Task<T> GetByIdAsync(int id)
+	public virtual async Task<T> GetByIdAsync(int id)
 	{
-		var entity = await _context.Set<T>().AsNoTracking().Where(x => x.Id == id).ToListAsync();
-
-		if (entity.Count == 0)
-			return null;
-
-		return entity.First();
+		try
+		{
+			var entity = await _context.Set<T>().AsNoTracking().Where(x => x.Id == id).FirstOrDefaultAsync();
+			return entity;
+		}
+		catch (Exception ex)
+		{
+			throw new RepositoryException(ex.Message, ex);
+		}
 	}
 
-	public async Task<bool> CreateAsync(T entity)
+	public virtual async Task<T> CreateAsync(T entity)
 	{
-		_context.Add(entity);
-		var result = await _context.SaveChangesAsync();
+		try
+		{
+			_context.Add(entity);
+			await _context.SaveChangesAsync();
 
-		if (result <= 0)
-			return false;
-
-		return true;
+			return entity;
+		}
+		catch (Exception ex)
+		{
+			throw new RepositoryException(ex.Message, ex);
+		}
 	}
 
-	public async Task<T> CreateAsync(T entity, bool returnEntity)
+	public virtual T Create(T entity)
 	{
-		_context.Add(entity);
-		var result = await _context.SaveChangesAsync();
+		try
+		{
+			_context.Add(entity);
 
-		if (result <= 0)
-			return null;
-
-		return entity;
+			return entity;
+		}
+		catch (Exception ex)
+		{
+			throw new RepositoryException(ex.Message, ex);
+		}
 	}
 
-	public async Task<bool> UpdateAsync(T entity)
+	public virtual async Task<T> UpdateAsync(T entity)
 	{
-		_context.Entry(entity).State = EntityState.Modified;
-		var result = await _context.SaveChangesAsync();
+		try
+		{
+			_context.Update(entity);
+			await _context.SaveChangesAsync();
 
-		if (result <= 0)
-			return false;
-
-		return true;
+			return entity;
+		}
+		catch (Exception ex)
+		{
+			throw new RepositoryException(ex.Message, ex);
+		}
 	}
 
-	public async Task<bool> DeleteAsync(T entity)
+	public virtual T Update(T entity)
 	{
-		_context.Remove(entity);
-		var result = await _context.SaveChangesAsync();
+		try
+		{
+			_context.Update(entity);
 
-		if (result <= 0)
-			return false;
+			return entity;
+		}
+		catch (Exception ex)
+		{
+			throw new RepositoryException(ex.Message, ex);
+		}
+	}
 
-		return true;
+	public virtual async Task<T> DeleteAsync(T entity)
+	{
+		try
+		{
+			_context.Remove(entity);
+			await _context.SaveChangesAsync();
+
+			return entity;
+		}
+		catch (Exception ex)
+		{
+			throw new RepositoryException(ex.Message, ex);
+		}
+	}
+
+	public virtual T Delete(T entity)
+	{
+		try
+		{
+			_context.Remove(entity);
+
+			return entity;
+		}
+		catch (Exception ex)
+		{
+			throw new RepositoryException(ex.Message, ex);
+		}
+	}
+
+	public virtual async Task SaveChangesAsync()
+	{
+		try
+		{
+			await _context.SaveChangesAsync();
+		}
+		catch (Exception)
+		{
+			throw new RepositoryException("Error on save changes");
+		}
 	}
 }

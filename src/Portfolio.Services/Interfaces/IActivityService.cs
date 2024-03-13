@@ -4,9 +4,9 @@ namespace Portfolio.Services.Interfaces;
 
 public interface IActivityService
 {
-	Task<List<ActivityDto>> GetAllActivitiesAsync();
-	Task<ActivityDto> GetActivityByIdAsync(int id);
-	Task<bool> CreateActivityAsync(ActivityDto activityDtoDto);
-	Task<bool> UpdateActivityAsync(ActivityDto activityDto);
-	Task<bool> DeleteActivityAsync(int id);
+	Task<List<ActivityDto>> Get();
+	Task<ActivityDto> GetById(int id);
+	Task<ActivityDto> Create(ActivityDto activityDtoDto);
+	Task<ActivityDto> Update(ActivityDto activityDto);
+	Task<ActivityDto> Delete(int id);
 }

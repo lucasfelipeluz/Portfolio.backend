@@ -1,24 +1,50 @@
-﻿using Microsoft.AspNetCore.Diagnostics;
+﻿using System.Net;
+using Microsoft.AspNetCore.Diagnostics;
+using Newtonsoft.Json;
 using Portfolio.API.Utils;
+using Portfolio.Core.ExceptionHandles;
 
 namespace Portfolio.API.Middlewares;
 
-public static class ExceptionHandlerMiddleware
+public class ExceptionHandlerMiddleware
 {
-	public static void UseCustomExceptionHandler(this IApplicationBuilder app)
+	private readonly RequestDelegate _next;
+
+	public ExceptionHandlerMiddleware(RequestDelegate next)
 	{
-		app.UseExceptionHandler(appError =>
+		_next = next;
+	}
+
+	public async Task Invoke(HttpContext context)
+	{
+		try
 		{
-			appError.Run(async context =>
-			{
-				context.Response.StatusCode = StatusCodes.Status500InternalServerError;
-				context.Response.ContentType = "application/json";
+			await _next(context);
+		}
+		catch (Exception ex)
+		{
+			await HandleExceptionAsync(context, ex);
+		}
+	}
 
-				var contextFeature = context.Features.Get<IExceptionHandlerFeature>();
+	private Task HandleExceptionAsync(HttpContext context, Exception ex)
+	{
+		bool isDevelopmentMode = Environment.GetEnvironmentVariable("SERVER_MODE") == "development";
 
-				if (contextFeature != null)
-					await context.Response.WriteAsJsonAsync(Responses.InternalServerErrorMessage());
-			});
-		});
+		ViewModels.ResultViewModel response = isDevelopmentMode
+			? Responses.InternalServerErrorMessage()
+			: Responses.InternalServerErrorMessage(ex.Message);
+
+		if (isDevelopmentMode)
+		{
+			Console.WriteLine($"{ex.Message}\n{ex.StackTrace}");
+		}
+
+		context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+
+		var result = JsonConvert.SerializeObject(response);
+		context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+		context.Response.ContentType = "application/json";
+		return context.Response.WriteAsync(result);
 	}
 }

@@ -4,10 +4,10 @@ namespace Portfolio.Services.Interfaces;
 
 public interface IUserService
 {
-	Task<List<UserDto>> GetAllUsersAsync();
-	Task<UserDto> GetUserByIdAsync(int id);
-	Task<UserDto> GetUserByNickNameAsync(string nickName);
-	Task<bool> CreateUserAsync(UserDto userDto);
-	Task<bool> UpdateUserAsync(UserDto userDto);
-	Task<bool> DeleteUserAsync(int id);
+	Task<List<UserDto>> Get();
+	Task<UserDto> GetUserById(int id);
+	Task<UserDto> GetUserByNickName(string nickName);
+	Task<UserDto> Create(UserDto userDto);
+	Task<UserDto> Update(UserDto userDto);
+	Task<UserDto> Delete(int id);
 }

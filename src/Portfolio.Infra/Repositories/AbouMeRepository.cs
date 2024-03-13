@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Portfolio.Core.ExceptionHandles;
 using Portfolio.Domain.Entities;
 using Portfolio.Infra.Context;
 using Portfolio.Infra.Interfaces;
@@ -17,19 +18,20 @@ public class AboutMeRepository : BaseRepository<AboutMe>, IAboutMeRepository
 
 	public async Task<AboutMe> GetAboutMeAsync()
 	{
-		var aboutMe = await _context.Set<AboutMe>().AsNoTracking().OrderBy(e => e.CreatedAt).ToListAsync();
+		try
+		{
+			var aboutMe = await _context.Set<AboutMe>().AsNoTracking().OrderBy(e => e.CreatedAt).ToListAsync();
 
-		return aboutMe.Last();
-	}
+			if (aboutMe.Count == 0 || aboutMe is null)
+			{
+				return null;
+			}
 
-	public async Task<bool> UpdateAboutMeAsync(AboutMe aboutMe)
-	{
-		_context.Add(aboutMe);
-		var result = await _context.SaveChangesAsync();
-
-		if (result <= 0)
-			return false;
-
-		return true;
+			return aboutMe.Last();
+		}
+		catch (Exception ex)
+		{
+			throw new RepositoryException(ex.Message, ex);
+		}
 	}
 }

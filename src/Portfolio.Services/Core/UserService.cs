@@ -1,5 +1,6 @@
 using AutoMapper;
 using Portfolio.Core.Enums;
+using Portfolio.Core.ExceptionHandles;
 using Portfolio.Domain.Entities;
 using Portfolio.Infra.Cache;
 using Portfolio.Infra.Interfaces;
@@ -21,103 +22,141 @@ public class UserService : IUserService
 		_cachingRepository = cachingRepository;
 	}
 
-	public async Task<List<UserDto>> GetAllUsersAsync()
+	public async Task<List<UserDto>> Get()
 	{
-		var cache = _cachingRepository.Get<List<UserDto>>(CacheCode.User);
-
-		if (cache is not null)
+		try
 		{
-			return cache;
+			var cache = _cachingRepository.Get<List<UserDto>>(CacheCode.User);
+
+			if (cache is not null)
+			{
+				return cache;
+			}
+
+			var users = await _userRepository.GetAllAsync();
+			var userDto = _mapper.Map<List<UserDto>>(users);
+
+			_cachingRepository.Save(CacheCode.User, userDto);
+
+			return userDto;
 		}
-
-		var users = await _userRepository.GetAllAsync();
-		var userDto = _mapper.Map<List<UserDto>>(users);
-
-		_cachingRepository.Save(CacheCode.User, userDto);
-
-		return userDto;
-	}
-
-	public async Task<UserDto> GetUserByIdAsync(int id)
-	{
-		var cache = _cachingRepository.Get<List<UserDto>>(CacheCode.User);
-
-		if (cache is not null)
+		catch (Exception ex)
 		{
-			var cacheUser = cache.Find(x => x.Id == id);
-
-			if (cacheUser is not null)
-				return cacheUser;
+			throw new ServiceException(ex.Message, ex);
 		}
-
-		var user = await _userRepository.GetByIdAsync(id);
-		var userDto = _mapper.Map<UserDto>(user);
-
-		return userDto;
 	}
 
-	public async Task<UserDto> GetUserByNickNameAsync(string nickName)
+	public async Task<UserDto> GetUserById(int id)
 	{
-		var cache = _cachingRepository.Get<List<UserDto>>(CacheCode.User);
-
-		if (cache is not null)
+		try
 		{
-			var cacheUser = cache.Find(x => x.NickName == nickName);
+			var cache = _cachingRepository.Get<List<UserDto>>(CacheCode.User);
 
-			if (cacheUser is not null)
-				return cacheUser;
+			if (cache is not null)
+			{
+				var cacheUser = cache.Find(x => x.Id == id);
+
+				if (cacheUser is not null)
+					return cacheUser;
+			}
+
+			var user = await _userRepository.GetByIdAsync(id);
+			var userDto = _mapper.Map<UserDto>(user);
+
+			return userDto;
 		}
-
-		var user = await _userRepository.GetUserByNickName(nickName);
-		var userDto = _mapper.Map<UserDto>(user);
-
-		return userDto;
+		catch (Exception ex)
+		{
+			throw new ServiceException(ex.Message, ex);
+		}
 	}
 
-	public async Task<bool> CreateUserAsync(UserDto userDto)
+	public async Task<UserDto> GetUserByNickName(string nickName)
 	{
-		var user = _mapper.Map<User>(userDto);
+		try
+		{
+			var cache = _cachingRepository.Get<List<UserDto>>(CacheCode.User);
 
-		var isSuccess = await _userRepository.CreateAsync(user);
-		if (!isSuccess)
-			return false;
+			if (cache is not null)
+			{
+				var cacheUser = cache.Find(x => x.NickName == nickName);
 
-		_cachingRepository.Remove(CacheCode.User);
+				if (cacheUser is not null)
+					return cacheUser;
+			}
 
-		return true;
+			var user = await _userRepository.GetByNickName(nickName);
+			var userDto = _mapper.Map<UserDto>(user);
+
+			return userDto;
+		}
+		catch (Exception ex)
+		{
+			throw new ServiceException(ex.Message, ex);
+		}
 	}
 
-	public async Task<bool> UpdateUserAsync(UserDto userDto)
+	public async Task<UserDto> Create(UserDto userDto)
 	{
-		var userExists = await _userRepository.GetByIdAsync(userDto.Id);
+		try
+		{
+			var user = _mapper.Map<User>(userDto);
 
-		if (userExists == null)
-			return false;
+			await _userRepository.CreateAsync(user);
 
-		var user = _mapper.Map<User>(userDto);
+			_cachingRepository.Remove(CacheCode.User);
 
-		var isSuccess = await _userRepository.UpdateAsync(user);
-		if (!isSuccess)
-			return false;
-
-		_cachingRepository.Remove(CacheCode.User);
-
-		return true;
+			return userDto;
+		}
+		catch (Exception ex)
+		{
+			throw new ServiceException(ex.Message, ex);
+		}
 	}
 
-	public async Task<bool> DeleteUserAsync(int id)
+	public async Task<UserDto> Update(UserDto userDto)
 	{
-		var user = await _userRepository.GetByIdAsync(id);
+		try
+		{
+			var userExists = await GetUserById(userDto.Id);
 
-		if (user == null)
-			return false;
+			if (userExists is null)
+				throw new NotFoundEntityException("User not found");
 
-		var isSuccess = await _userRepository.DeleteAsync(user);
-		if (!isSuccess)
-			return false;
+			var user = _mapper.Map<User>(userDto);
 
-		_cachingRepository.Remove(CacheCode.User);
+			await _userRepository.UpdateAsync(user);
 
-		return true;
+			_cachingRepository.Remove(CacheCode.User);
+
+			return userDto;
+		}
+		catch (Exception ex)
+		{
+			throw new ServiceException(ex.Message, ex);
+		}
+	}
+
+	public async Task<UserDto> Delete(int id)
+	{
+		try
+		{
+			var userDto = await GetUserById(id);
+
+			if (userDto is null)
+				throw new NotFoundEntityException("User not found");
+
+			var user = _mapper.Map<User>(userDto);
+
+			await _userRepository.DeleteAsync(user);
+
+			_cachingRepository.Remove(CacheCode.User);
+
+			return userDto;
+		}
+		catch (Exception ex)
+		{
+			throw new ServiceException(ex.Message, ex);
+		}
 	}
 }

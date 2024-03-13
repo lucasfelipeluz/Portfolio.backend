@@ -36,27 +36,20 @@ public class HomeController : ControllerBase
 	[HttpGet]
 	public async Task<IActionResult> GetHomePublicAsync()
 	{
-		try
-		{
-			var projects = await _projectService.GetAllProjectsAsync(true);
-			var skills = await _skillService.GetAllSkillsAsync();
-			var aboutMe = await _aboutMeService.GetAboutMeAsync();
-			var activities = await _activityService.GetAllActivitiesAsync();
+		var projects = await _projectService.GetByIsActive(true);
+		var skills = await _skillService.GetByIsActive(true);
+		var aboutMe = await _aboutMeService.Get();
+		var activities = await _activityService.Get();
 
-			var homeViewModel = new HomeViewModel
-			{
-				Projects = projects,
-				Skills = skills,
-				AboutMe = aboutMe,
-				Activities = activities
-			};
-
-			return Ok(homeViewModel);
-		}
-		catch (Exception)
+		var homeViewModel = new HomeViewModel
 		{
-			return StatusCode(StatusCodes.Status500InternalServerError, Responses.InternalServerErrorMessage());
-		}
+			Projects = projects,
+			Skills = skills,
+			AboutMe = aboutMe,
+			Activities = activities
+		};
+
+		return Ok(homeViewModel);
 	}
 
 	[HttpGet]
@@ -67,62 +60,41 @@ public class HomeController : ControllerBase
 		[FromQuery] bool? isActiveSkill
 	)
 	{
-		try
-		{
-			var projects = isActiveProject is null
-				? await _projectService.GetAllProjectsAsync()
-				: await _projectService.GetAllProjectsAsync(isActiveProject.Value);
+		var projects = isActiveProject is null
+			? await _projectService.Get()
+			: await _projectService.GetByIsActive(isActiveProject.Value);
 
-			var skills = isActiveSkill is null
-				? await _skillService.GetAllSkillsAsync()
-				: await _skillService.GetAllSkillsAsync(isActiveSkill.Value);
+		var skills = isActiveSkill is null
+			? await _skillService.Get()
+			: await _skillService.GetByIsActive(isActiveSkill.Value);
 
-			var activities = await _activityService.GetAllActivitiesAsync();
-			var aboutMe = await _aboutMeService.GetAboutMeAsync();
+		var activities = await _activityService.Get();
+		var aboutMe = await _aboutMeService.Get();
 
-			return Ok(
-				new HomeViewModel
-				{
-					Projects = projects,
-					Skills = skills,
-					Activities = activities,
-					AboutMe = aboutMe,
-				}
-			);
-		}
-		catch (Exception)
-		{
-			return StatusCode(StatusCodes.Status500InternalServerError, Responses.InternalServerErrorMessage());
-		}
+		return Ok(
+			new HomeViewModel
+			{
+				Projects = projects,
+				Skills = skills,
+				Activities = activities,
+				AboutMe = aboutMe,
+			}
+		);
 	}
 
 	[HttpGet]
 	[Route("project/{id}")]
 	public async Task<IActionResult> GetProjectIdAsync(int id)
 	{
-		try
-		{
-			var project = await _projectService.GetProjectByIdAsync(id);
-			return Ok(project);
-		}
-		catch (Exception)
-		{
-			return StatusCode(StatusCodes.Status500InternalServerError, Responses.InternalServerErrorMessage());
-		}
+		var project = await _projectService.GetById(id);
+		return Ok(project);
 	}
 
 	[HttpGet]
 	[Route("skill/{id}")]
 	public async Task<IActionResult> GetSkillByIdAsync(int id)
 	{
-		try
-		{
-			var skill = await _skillService.GetSkillByIdAsync(id);
-			return Ok(skill);
-		}
-		catch (Exception)
-		{
-			return StatusCode(StatusCodes.Status500InternalServerError, Responses.InternalServerErrorMessage());
-		}
+		var skill = await _skillService.GetById(id);
+		return Ok(skill);
 	}
 }

@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Portfolio.Core.ExceptionHandles;
 using Portfolio.Domain.Entities;
 using Portfolio.Infra.Context;
 using Portfolio.Infra.Interfaces;
@@ -15,13 +16,20 @@ public class SystemVariablesRepository : BaseRepository<SystemVariable>, ISystem
 		_context = context;
 	}
 
-	public async Task<SystemVariable> GetVariableAsync(string name)
+	public async Task<SystemVariable> GetByName(string name)
 	{
-		var variable = await _context.SystemVariables.AsNoTracking().Where(x => x.Name == name).FirstOrDefaultAsync();
+		try
+		{
+			var variable = await _context
+				.SystemVariables.AsNoTracking()
+				.Where(x => x.Name == name)
+				.FirstOrDefaultAsync();
 
-		if (variable is null)
-			return null;
-
-		return variable;
+			return variable;
+		}
+		catch (Exception ex)
+		{
+			throw new RepositoryException(ex.Message, ex);
+		}
 	}
 }

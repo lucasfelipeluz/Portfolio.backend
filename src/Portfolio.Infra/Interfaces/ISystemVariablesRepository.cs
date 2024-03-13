@@ -4,5 +4,5 @@ namespace Portfolio.Infra.Interfaces;
 
 public interface ISystemVariablesRepository : IBaseRepository<SystemVariable>
 {
-	public Task<SystemVariable> GetVariableAsync(string name);
+	public Task<SystemVariable> GetByName(string name);
 }

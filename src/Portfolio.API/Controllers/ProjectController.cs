@@ -15,26 +15,22 @@ public class ProjectController : ControllerBase
 	private readonly IMapper _mapper;
 	private readonly IProjectService _projectService;
 
-	public ProjectController(IProjectService projectService, IMapper mapper)
+	private readonly IProjectSkillService _projectSkillService;
+
+	public ProjectController(IProjectService projectService, IMapper mapper, IProjectSkillService projectSkillService)
 	{
 		_projectService = projectService;
 		_mapper = mapper;
+		_projectSkillService = projectSkillService;
 	}
 
 	[HttpGet]
 	[Authorize]
 	public async Task<IActionResult> GetAsync()
 	{
-		try
-		{
-			var projects = await _projectService.GetAllProjectsAsync();
+		var projects = await _projectService.Get();
 
-			return Ok(projects);
-		}
-		catch (Exception)
-		{
-			return StatusCode(StatusCodes.Status500InternalServerError, Responses.InternalServerErrorMessage());
-		}
+		return Ok(projects);
 	}
 
 	[HttpGet]
@@ -42,75 +38,50 @@ public class ProjectController : ControllerBase
 	[Authorize]
 	public async Task<IActionResult> GetByIdAsync(int id)
 	{
-		try
-		{
-			var project = await _projectService.GetProjectByIdAsync(id);
+		var project = await _projectService.GetById(id);
 
-			if (project is null)
-				return NotFound(Responses.NotFoundErrorMessage());
+		if (project is null)
+			return NotFound(Responses.NotFoundErrorMessage());
 
-			return Ok(project);
-		}
-		catch (Exception)
-		{
-			return StatusCode(StatusCodes.Status500InternalServerError, Responses.InternalServerErrorMessage());
-		}
+		return Ok(project);
 	}
 
 	[HttpPost]
 	[Authorize]
 	public async Task<IActionResult> CreateAsync([FromBody] CreateProjectViewModel createProjectViewModel)
 	{
-		try
-		{
-			var projectDto = _mapper.Map<ProjectDto>(createProjectViewModel);
-			var isSuccess = await _projectService.CreateProjectAsync(projectDto);
-			if (!isSuccess)
-				return StatusCode(StatusCodes.Status500InternalServerError, Responses.InternalServerErrorMessage());
+		var projectDto = _mapper.Map<ProjectDto>(createProjectViewModel);
+		var createdProject = await _projectService.Create(projectDto);
 
-			return Created("/api/v1/projects", Responses.SuccessMessage("Project created successfully!"));
-		}
-		catch (Exception e)
+		if (createProjectViewModel.SkillsId is not null && createProjectViewModel.SkillsId.Length > 0)
 		{
-			Console.WriteLine(e);
-			return StatusCode(StatusCodes.Status500InternalServerError, Responses.InternalServerErrorMessage());
+			int[] projectsId = { createdProject.Id };
+
+			ProjectSkillOnDemandDto projectSkillOnDemandDto =
+				new() { ProjectsId = projectsId, SkillsId = createProjectViewModel.SkillsId };
+
+			await _projectSkillService.CreateOnDemand(projectSkillOnDemandDto);
 		}
+
+		return Created("/api/v1/projects", Responses.SuccessMessage("Project created successfully!"));
 	}
 
 	[HttpPut]
 	[Authorize]
 	public async Task<IActionResult> UpdateAsync([FromBody] UpdateProjectViewModel updateProjectViewModel)
 	{
-		try
-		{
-			var projectDto = _mapper.Map<ProjectDto>(updateProjectViewModel);
-			var isSuccess = await _projectService.UpdateProjectAsync(projectDto);
-			if (!isSuccess)
-				return StatusCode(StatusCodes.Status500InternalServerError, Responses.InternalServerErrorMessage());
+		var projectDto = _mapper.Map<ProjectDto>(updateProjectViewModel);
+		await _projectService.Update(projectDto);
 
-			return Ok(Responses.SuccessMessage("Project updated successfully!"));
-		}
-		catch (Exception)
-		{
-			return StatusCode(StatusCodes.Status500InternalServerError, Responses.InternalServerErrorMessage());
-		}
+		return Ok(Responses.SuccessMessage("Project updated successfully!"));
 	}
 
 	[HttpDelete("{id}")]
 	[Authorize]
 	public async Task<IActionResult> DeleteAsync(int id)
 	{
-		try
-		{
-			var isSuccess = await _projectService.DeleteProjectAsync(id);
-			if (!isSuccess)
-				return StatusCode(StatusCodes.Status500InternalServerError, Responses.InternalServerErrorMessage());
+		await _projectService.Delete(id);
 
-			return Ok(Responses.SuccessMessage("Project deleted successfully!"));
-		}
-		catch (Exception)
-		{
-			return StatusCode(StatusCodes.Status500InternalServerError, Responses.InternalServerErrorMessage());
-		}
+		return Ok(Responses.SuccessMessage("Project deleted successfully!"));
 	}
 }

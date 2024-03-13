@@ -4,6 +4,5 @@ namespace Portfolio.Infra.Interfaces;
 
 public interface ISkillRepository : IBaseRepository<Skill>
 {
-	public Task<List<Skill>> GetActivesSkills();
-	public Task<bool> DeleteSkill(int id);
+	public Task<List<Skill>> GetByIsActive(bool isActive);
 }

@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+using Portfolio.Core.ExceptionHandles;
 using Portfolio.Domain.Entities;
 using Portfolio.Infra.Context;
 using Portfolio.Infra.Interfaces;
@@ -15,11 +15,18 @@ public class ProjectSkillRepository : BaseRepository<ProjectSkill>, IProjectSkil
 		_context = context;
 	}
 
-	public async Task<bool> AddRelationship(ProjectSkill projectSkill)
+	public override async Task<ProjectSkill> CreateAsync(ProjectSkill projectSkill)
 	{
-		_context.ProjectsSkills.Add(projectSkill);
-		await _context.SaveChangesAsync();
+		try
+		{
+			_context.ProjectsSkills.Add(projectSkill);
+			await _context.SaveChangesAsync();
 
-		return true;
+			return projectSkill;
+		}
+		catch (Exception ex)
+		{
+			throw new RepositoryException(ex.Message, ex);
+		}
 	}
 }

@@ -1,5 +1,6 @@
 using AutoMapper;
 using Portfolio.Core.Enums;
+using Portfolio.Core.ExceptionHandles;
 using Portfolio.Domain.Entities;
 using Portfolio.Infra.Cache;
 using Portfolio.Infra.Interfaces;
@@ -25,17 +26,82 @@ public class ProjectSkillService : IProjectSkillService
 		_cachingRepository = cachingRepository;
 	}
 
-	public async Task<bool> CreateProjectSkillAsync(ProjectSkillDto entity)
+	public async Task<ProjectSkillDto> Create(ProjectSkillDto entity)
 	{
-		var projectSkill = _mapper.Map<ProjectSkill>(entity);
+		try
+		{
+			var projectSkill = _mapper.Map<ProjectSkill>(entity);
 
-		var isSuccess = await _projectSkillRepository.CreateAsync(projectSkill);
-		if (!isSuccess)
-			return false;
+			var createdProjectSkill = await _projectSkillRepository.CreateAsync(projectSkill);
 
-		_cachingRepository.Remove(CacheCode.Skill);
-		_cachingRepository.Remove(CacheCode.Project);
+			_cachingRepository.Remove(CacheCode.Skill);
+			_cachingRepository.Remove(CacheCode.Project);
 
-		return true;
+			return _mapper.Map<ProjectSkillDto>(createdProjectSkill);
+		}
+		catch (Exception ex)
+		{
+			throw new ServiceException(ex.Message, ex);
+		}
+	}
+
+	public async Task<ProjectSkillDto> CreateOnDemand(ProjectSkillOnDemandDto projectSkillOnDemandDto)
+	{
+		try
+		{
+			bool isSkillOnDemandForOneProject =
+				projectSkillOnDemandDto.ProjectsId.Length == 1 && projectSkillOnDemandDto.SkillsId.Length > 0;
+			bool isProjectOnDemandForOneSkill =
+				projectSkillOnDemandDto.SkillsId.Length == 1 && projectSkillOnDemandDto.ProjectsId.Length > 0;
+
+			if (isSkillOnDemandForOneProject)
+			{
+				ProjectSkill[] projectSkills = projectSkillOnDemandDto
+					.SkillsId.Select(skillId => new ProjectSkill
+					{
+						ProjectId = projectSkillOnDemandDto.ProjectsId[0],
+						SkillId = skillId
+					})
+					.ToArray();
+
+				// Create the ProjectSkill's
+				for (int i = 0; i < projectSkills.Length; i++)
+				{
+					_projectSkillRepository.Create(projectSkills[i]);
+				}
+
+				await _projectSkillRepository.SaveChangesAsync();
+
+				return _mapper.Map<ProjectSkillDto>(projectSkills);
+			}
+			else if (isProjectOnDemandForOneSkill)
+			{
+				ProjectSkill[] projectSkills = projectSkillOnDemandDto
+					.ProjectsId.Select(projectId => new ProjectSkill
+					{
+						ProjectId = projectId,
+						SkillId = projectSkillOnDemandDto.SkillsId[0]
+					})
+					.ToArray();
+
+				for (int i = 0; i < projectSkills.Length; i++)
+				{
+					_projectSkillRepository.Create(projectSkills[i]);
+				}
+
+				await _projectSkillRepository.SaveChangesAsync();
+
+				return _mapper.Map<ProjectSkillDto>(projectSkills);
+			}
+
+			_cachingRepository.Remove(CacheCode.Skill);
+			_cachingRepository.Remove(CacheCode.Project);
+
+			throw new ServiceException("Invalid request");
+		}
+		catch (Exception ex)
+		{
+			throw new ServiceException(ex.Message, ex);
+		}
 	}
 }

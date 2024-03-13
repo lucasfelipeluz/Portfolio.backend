@@ -25,19 +25,9 @@ public class ProjectSkillController : ControllerBase
 	//[Authorize]
 	public async Task<IActionResult> CreateAsync([FromBody] CreateProjectSkillViewModel createProjectSkillViewModel)
 	{
-		try
-		{
-			var projectSkillDto = _mapper.Map<ProjectSkillDto>(createProjectSkillViewModel);
-			var isSuccess = await _projectSkillService.CreateProjectSkillAsync(projectSkillDto);
-			if (!isSuccess)
-				return StatusCode(StatusCodes.Status500InternalServerError, Responses.InternalServerErrorMessage());
+		var projectSkillDto = _mapper.Map<ProjectSkillDto>(createProjectSkillViewModel);
+		await _projectSkillService.Create(projectSkillDto);
 
-			return Created("/api/v1/projects", Responses.SuccessMessage("Relationship created"));
-		}
-		catch (Exception e)
-		{
-			Console.WriteLine(e);
-			return StatusCode(StatusCodes.Status500InternalServerError, Responses.InternalServerErrorMessage());
-		}
+		return Created("/api/v1/projects", Responses.SuccessMessage("Relationship created"));
 	}
 }

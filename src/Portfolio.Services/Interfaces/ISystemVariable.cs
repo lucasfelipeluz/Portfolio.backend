@@ -4,7 +4,7 @@ namespace Portfolio.Services.Interfaces;
 
 public interface ISystemVariableService
 {
-	Task<List<SystemVariableDto>> GetAllSystemVariablesAsync();
-	Task<SystemVariableDto> GetSystemVariableAsync(string key);
-	Task<bool> UpdateSystemVariableAsync(SystemVariableDto systemVariableDto);
+	Task<List<SystemVariableDto>> Get();
+	Task<SystemVariableDto> GetByKey(string key);
+	Task<SystemVariableDto> Update(SystemVariableDto systemVariableDto);
 }

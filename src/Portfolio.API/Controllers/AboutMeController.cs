@@ -25,35 +25,18 @@ public class AboutMeController : ControllerBase
 	[Authorize]
 	public async Task<IActionResult> GetAsync()
 	{
-		try
-		{
-			var aboutMe = await _aboutMeService.GetAboutMeAsync();
+		var aboutMe = await _aboutMeService.Get();
 
-			return Ok(aboutMe);
-		}
-		catch (Exception)
-		{
-			return StatusCode(StatusCodes.Status500InternalServerError, Responses.InternalServerErrorMessage());
-		}
+		return Ok(aboutMe);
 	}
 
 	[HttpPost]
 	[Authorize]
 	public async Task<IActionResult> CreateAsync([FromBody] CreateAboutMeViewModel createAboutMeViewModel)
 	{
-		try
-		{
-			var aboutMeDto = _mapper.Map<AboutMeDto>(createAboutMeViewModel);
-			var isSuccess = await _aboutMeService.UpdateAboutMeAsync(aboutMeDto);
+		var aboutMeDto = _mapper.Map<AboutMeDto>(createAboutMeViewModel);
+		await _aboutMeService.Update(aboutMeDto);
 
-			if (!isSuccess)
-				return StatusCode(StatusCodes.Status500InternalServerError, Responses.InternalServerErrorMessage());
-
-			return Created("api/about_me", Responses.SuccessMessage("About me updated successfully!"));
-		}
-		catch (Exception)
-		{
-			return StatusCode(StatusCodes.Status500InternalServerError, Responses.InternalServerErrorMessage());
-		}
+		return Created("api/about_me", Responses.SuccessMessage("About me updated successfully!"));
 	}
 }

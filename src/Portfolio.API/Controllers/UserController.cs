@@ -27,54 +27,39 @@ public class UserController : ControllerBase
 	[Route("api/register")]
 	public async Task<IActionResult> Register([FromBody] RegisterViewModel userDto)
 	{
-		try
+		var hashedPassword = _tokenManager.HashPassword(userDto.Password);
+
+		var user = new UserDto
 		{
-			var hashedPassword = _tokenManager.HashPassword(userDto.Password);
+			Name = userDto.Name,
+			NickName = userDto.NickName,
+			Password = hashedPassword
+		};
 
-			var user = new UserDto
-			{
-				Name = userDto.Name,
-				NickName = userDto.NickName,
-				Password = hashedPassword
-			};
+		await _userService.Create(user);
 
-			await _userService.CreateUserAsync(user);
-
-			return Created("api/register", Responses.SuccessMessage(hashedPassword));
-		}
-		catch (Exception)
-		{
-			return StatusCode(StatusCodes.Status500InternalServerError, Responses.InternalServerErrorMessage());
-		}
+		return Created("api/register", Responses.SuccessMessage(hashedPassword));
 	}
 
 	[HttpPost]
 	[Route("api/login")]
 	public async Task<IActionResult> Login([FromBody] LoginViewModel loginViewModel)
 	{
-		try
-		{
-			var user = await _userService.GetUserByNickNameAsync(loginViewModel.NickName);
+		var user = await _userService.GetUserByNickName(loginViewModel.NickName);
 
-			if (user == null)
-				return BadRequest(Responses.NotFoundErrorMessage("User not found!"));
+		if (user is null)
+			return BadRequest(Responses.NotFoundErrorMessage("User not found!"));
 
-			var isPasswordCorrect = _tokenManager.ComparePasswords(loginViewModel.Password, user.Password);
+		var isPasswordCorrect = _tokenManager.ComparePasswords(loginViewModel.Password, user.Password);
 
-			if (!isPasswordCorrect)
-				return StatusCode(StatusCodes.Status401Unauthorized, Responses.UnauthorizedErrorMessage());
+		if (!isPasswordCorrect)
+			return StatusCode(StatusCodes.Status401Unauthorized, Responses.UnauthorizedErrorMessage());
 
-			var token = _tokenManager.GenerateToken(user);
-			user.Password = null;
+		var token = _tokenManager.GenerateToken(user);
+		user.Password = null;
 
-			var result = new ResultLoginViewModel { User = user, Token = token };
+		var result = new ResultLoginViewModel { User = user, Token = token };
 
-			return Ok(Responses.SuccessLoginMessage(result));
-		}
-		catch (Exception e)
-		{
-			Console.WriteLine(e);
-			return StatusCode(StatusCodes.Status500InternalServerError, Responses.InternalServerErrorMessage());
-		}
+		return Ok(Responses.SuccessLoginMessage(result));
 	}
 }

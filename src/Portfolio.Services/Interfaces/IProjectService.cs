@@ -4,10 +4,10 @@ namespace Portfolio.Services.Interfaces;
 
 public interface IProjectService
 {
-	Task<List<ProjectDto>> GetAllProjectsAsync();
-	Task<List<ProjectDto>> GetAllProjectsAsync(bool isActive);
-	Task<ProjectDto> GetProjectByIdAsync(int id);
-	Task<bool> CreateProjectAsync(ProjectDto projectDto);
-	Task<bool> UpdateProjectAsync(ProjectDto projectDto);
-	Task<bool> DeleteProjectAsync(int id);
+	Task<List<ProjectDto>> Get();
+	Task<List<ProjectDto>> GetByIsActive(bool isActive);
+	Task<ProjectDto> GetById(int id);
+	Task<ProjectDto> Create(ProjectDto projectDto);
+	Task<ProjectDto> Update(ProjectDto projectDto);
+	Task<ProjectDto> Delete(int id);
 }
