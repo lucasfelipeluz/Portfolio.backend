@@ -200,7 +200,7 @@ app.UseAuthentication();
 
 app.UseAuthorization();
 
-app.UseCustomExceptionHandler();
+app.UseMiddleware<ExceptionHandlerMiddleware>();
 
 app.MapControllers();
 

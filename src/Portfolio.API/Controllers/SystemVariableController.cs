@@ -24,34 +24,20 @@ public class SystemVariableController : ControllerBase
 	[HttpGet]
 	public async Task<IActionResult> GetAsync()
 	{
-		try
-		{
-			var systemVariables = await _systemVariableService.GetAllSystemVariablesAsync();
+		var systemVariables = await _systemVariableService.Get();
 
-			return Ok(systemVariables);
-		}
-		catch (Exception)
-		{
-			return StatusCode(StatusCodes.Status500InternalServerError, Responses.InternalServerErrorMessage());
-		}
+		return Ok(systemVariables);
 	}
 
 	[HttpGet]
 	[Route("{name}")]
 	public async Task<IActionResult> GetByNameAsync(string name)
 	{
-		try
-		{
-			var systemVariable = await _systemVariableService.GetSystemVariableAsync(name);
-			if (systemVariable is null)
-				return NotFound(Responses.NotFoundErrorMessage($"System variable {name} not found!"));
+		var systemVariable = await _systemVariableService.GetByKey(name);
+		if (systemVariable is null)
+			return NotFound(Responses.NotFoundErrorMessage($"System variable {name} not found!"));
 
-			return Ok(systemVariable);
-		}
-		catch (Exception)
-		{
-			return StatusCode(StatusCodes.Status500InternalServerError, Responses.InternalServerErrorMessage());
-		}
+		return Ok(systemVariable);
 	}
 
 	[HttpPost]
@@ -60,21 +46,9 @@ public class SystemVariableController : ControllerBase
 		[FromBody] CreateOrUpdateSystemVariableViewModel createSystemVariableViewModel
 	)
 	{
-		try
-		{
-			var systemVariableDto = _mapper.Map<SystemVariableDto>(createSystemVariableViewModel);
-			var isSucess = await _systemVariableService.UpdateSystemVariableAsync(systemVariableDto);
+		var systemVariableDto = _mapper.Map<SystemVariableDto>(createSystemVariableViewModel);
+		await _systemVariableService.Update(systemVariableDto);
 
-			if (!isSucess)
-			{
-				return StatusCode(StatusCodes.Status500InternalServerError, Responses.InternalServerErrorMessage());
-			}
-
-			return Created("/api/v1/status", Responses.SuccessMessage("System variable created with success!"));
-		}
-		catch (Exception)
-		{
-			return StatusCode(StatusCodes.Status500InternalServerError, Responses.InternalServerErrorMessage());
-		}
+		return Created("/api/v1/status", Responses.SuccessMessage("System variable created with success!"));
 	}
 }
