@@ -1,5 +1,4 @@
 using AutoMapper;
-using Microsoft.VisualBasic;
 using Portfolio.Core.Enums;
 using Portfolio.Core.ExceptionHandles;
 using Portfolio.Domain.Entities;
@@ -60,8 +59,6 @@ public class ProjectService : IProjectService
 
 			var projects = await _projectRepository.GetByIsActiveAsync(isActive);
 			var projectsDto = _mapper.Map<List<ProjectDto>>(projects);
-
-			_cachingRepository.Save(CacheCode.Project, projectsDto);
 
 			return projectsDto;
 		}

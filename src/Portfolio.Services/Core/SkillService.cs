@@ -60,8 +60,6 @@ public class SkillService : ISkillService
 			var skills = await _skillRepository.GetByIsActive(isActive);
 			var skillDto = _mapper.Map<List<SkillDto>>(skills);
 
-			_cachingRepository.Save(CacheCode.Skill, skillDto);
-
 			return skillDto;
 		}
 		catch (Exception ex)

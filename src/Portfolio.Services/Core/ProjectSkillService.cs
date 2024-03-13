@@ -94,6 +94,9 @@ public class ProjectSkillService : IProjectSkillService
 				return _mapper.Map<ProjectSkillDto>(projectSkills);
 			}
 
+			_cachingRepository.Remove(CacheCode.Skill);
+			_cachingRepository.Remove(CacheCode.Project);
+
 			throw new ServiceException("Invalid request");
 		}
 		catch (Exception ex)

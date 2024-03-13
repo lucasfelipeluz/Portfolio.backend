@@ -51,8 +51,11 @@ public class ImageService : IImageService
 		}
 
 		var image = await _imageRepository.GetByIdAsync(id);
+		var imageDto = _mapper.Map<ImageDto>(image);
 
-		return _mapper.Map<ImageDto>(image);
+		_cachingRepository.Save(CacheCode.Image, imageDto);
+
+		return imageDto;
 	}
 
 	public async Task<ImageDto> Create(CreateImageDto imageDto)

@@ -65,8 +65,6 @@ public class ActivityService : IActivityService
 			var activity = await _activityRepository.GetByIdAsync(id);
 			var activityDto = _mapper.Map<ActivityDto>(activity);
 
-			_cachingRepository.Save(CacheCode.Activity, activityDto);
-
 			return activityDto;
 		}
 		catch (Exception ex)
