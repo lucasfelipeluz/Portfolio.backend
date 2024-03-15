@@ -9,7 +9,7 @@ public class Responses
 	{
 		return new ResultViewModel
 		{
-			Message = "Ocorreu um erro na aplicação, por favor tente novamente.",
+			Message = "An error occurred in the application, please try again.",
 			Success = false,
 		};
 	}
@@ -31,7 +31,7 @@ public class Responses
 
 	public static ResultViewModel NotFoundErrorMessage()
 	{
-		return new ResultViewModel { Message = "Registro não encontrado!", Success = false };
+		return new ResultViewModel { Message = "Registry is not found", Success = false };
 	}
 
 	public static ResultViewModel NotFoundErrorMessage(string message)
@@ -48,7 +48,7 @@ public class Responses
 	{
 		return new ResultViewModel
 		{
-			Message = "O serviço está indisponível no momento, por favor tente novamente mais tarde.",
+			Message = "The service is currently unavailable, please try again later.",
 			Success = false,
 		};
 	}
@@ -60,14 +60,14 @@ public class Responses
 
 	public static ResultViewModel UnauthorizedErrorMessage()
 	{
-		return new ResultViewModel { Message = "A combinação de login e senha está incorreta!", Success = false, };
+		return new ResultViewModel { Message = "The login and password combination is incorrect!", Success = false, };
 	}
 
 	public static ResultViewModel InternalServerErrorMessage()
 	{
 		return new ResultViewModel
 		{
-			Message = "Ocorreu um erro interno na aplicação, por favor tente novamente.",
+			Message = "An internal error occurred in the application, please try again.",
 			Success = false,
 		};
 	}
@@ -75,6 +75,11 @@ public class Responses
 	public static ResultViewModel InternalServerErrorMessage(string message)
 	{
 		return new ResultViewModel { Message = message, Success = false, };
+	}
+
+	public static ResultViewModel InternalServerErrorMessage(string message, string scopeError)
+	{
+		return new ResultViewModel { Message = $"{scopeError}:{message}", Success = false, };
 	}
 
 	public static ResultViewModel S3Response(string message, bool success)

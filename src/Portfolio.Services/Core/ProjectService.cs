@@ -59,9 +59,6 @@ public class ProjectService : IProjectService
 
 			var projects = await _projectRepository.GetByIsActiveAsync(isActive);
 
-			if (projects.Count == 0)
-				throw new NotFoundEntityException("Projects not found.");
-
 			var projectsDto = _mapper.Map<List<ProjectDto>>(projects);
 
 			return projectsDto;
@@ -89,9 +86,6 @@ public class ProjectService : IProjectService
 			}
 
 			var project = await _projectRepository.GetByIdAsync(id);
-
-			if (project is null)
-				throw new NotFoundEntityException("Project not found.");
 
 			return _mapper.Map<ProjectDto>(project);
 		}
