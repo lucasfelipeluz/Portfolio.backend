@@ -31,7 +31,7 @@ public class ProjectRepository : BaseRepository<Project>, IProjectRepository
 		}
 		catch (Exception ex)
 		{
-			throw new RepositoryException(ex.Message, ex);
+			throw new ServiceException(ex.Message);
 		}
 	}
 
@@ -51,7 +51,7 @@ public class ProjectRepository : BaseRepository<Project>, IProjectRepository
 		}
 		catch (Exception ex)
 		{
-			throw new RepositoryException(ex.Message, ex);
+			throw new ServiceException(ex.Message);
 		}
 	}
 
@@ -63,13 +63,13 @@ public class ProjectRepository : BaseRepository<Project>, IProjectRepository
 				.Projects.Include(x => x.Skills)
 				.AsNoTracking()
 				.Where(x => x.Id == Id)
-				.ToListAsync();
+				.FirstOrDefaultAsync();
 
-			return project.First();
+			return project;
 		}
 		catch (Exception ex)
 		{
-			throw new RepositoryException(ex.Message, ex);
+			throw new ServiceException(ex.Message);
 		}
 	}
 
@@ -77,7 +77,7 @@ public class ProjectRepository : BaseRepository<Project>, IProjectRepository
 	{
 		try
 		{
-			var project = await _context.Projects.AsNoTracking().Where(x => x.Id == entity.Id).FirstAsync();
+			var project = await _context.Projects.AsNoTracking().Where(x => x.Id == entity.Id).FirstOrDefaultAsync();
 
 			project.IsActive = false;
 			project.UpdatedAt = DateTime.Now;
@@ -90,7 +90,7 @@ public class ProjectRepository : BaseRepository<Project>, IProjectRepository
 		}
 		catch (Exception ex)
 		{
-			throw new RepositoryException(ex.Message, ex);
+			throw new ServiceException(ex.Message);
 		}
 	}
 }

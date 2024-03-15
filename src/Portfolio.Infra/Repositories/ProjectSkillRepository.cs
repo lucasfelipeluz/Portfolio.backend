@@ -26,7 +26,7 @@ public class ProjectSkillRepository : BaseRepository<ProjectSkill>, IProjectSkil
 		}
 		catch (Exception ex)
 		{
-			throw new RepositoryException(ex.Message, ex);
+			throw new ServiceException(ex.Message);
 		}
 	}
 }

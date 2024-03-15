@@ -24,7 +24,7 @@ public class BaseRepository<T> : IBaseRepository<T>
 		}
 		catch (Exception ex)
 		{
-			throw new RepositoryException(ex.Message, ex);
+			throw new ServiceException(ex.Message);
 		}
 	}
 
@@ -37,7 +37,7 @@ public class BaseRepository<T> : IBaseRepository<T>
 		}
 		catch (Exception ex)
 		{
-			throw new RepositoryException(ex.Message, ex);
+			throw new ServiceException(ex.Message);
 		}
 	}
 
@@ -52,7 +52,7 @@ public class BaseRepository<T> : IBaseRepository<T>
 		}
 		catch (Exception ex)
 		{
-			throw new RepositoryException(ex.Message, ex);
+			throw new ServiceException(ex.Message);
 		}
 	}
 
@@ -66,7 +66,7 @@ public class BaseRepository<T> : IBaseRepository<T>
 		}
 		catch (Exception ex)
 		{
-			throw new RepositoryException(ex.Message, ex);
+			throw new ServiceException(ex.Message);
 		}
 	}
 
@@ -81,7 +81,7 @@ public class BaseRepository<T> : IBaseRepository<T>
 		}
 		catch (Exception ex)
 		{
-			throw new RepositoryException(ex.Message, ex);
+			throw new ServiceException(ex.Message);
 		}
 	}
 
@@ -95,7 +95,7 @@ public class BaseRepository<T> : IBaseRepository<T>
 		}
 		catch (Exception ex)
 		{
-			throw new RepositoryException(ex.Message, ex);
+			throw new ServiceException(ex.Message);
 		}
 	}
 
@@ -110,7 +110,7 @@ public class BaseRepository<T> : IBaseRepository<T>
 		}
 		catch (Exception ex)
 		{
-			throw new RepositoryException(ex.Message, ex);
+			throw new ServiceException(ex.Message);
 		}
 	}
 
@@ -124,7 +124,7 @@ public class BaseRepository<T> : IBaseRepository<T>
 		}
 		catch (Exception ex)
 		{
-			throw new RepositoryException(ex.Message, ex);
+			throw new ServiceException(ex.Message);
 		}
 	}
 
