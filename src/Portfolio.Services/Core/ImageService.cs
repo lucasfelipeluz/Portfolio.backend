@@ -1,5 +1,6 @@
 using AutoMapper;
 using Portfolio.Core.Enums;
+using Portfolio.Core.ExceptionHandles;
 using Portfolio.Domain.Entities;
 using Portfolio.Infra.Cache;
 using Portfolio.Infra.Interfaces;
@@ -23,75 +24,106 @@ public class ImageService : IImageService
 
 	public async Task<List<ImageDto>> Get()
 	{
-		var cache = _cachingRepository.Get<List<ImageDto>>(CacheCode.Image);
-		if (cache is not null)
+		try
 		{
-			return cache;
+			var cache = _cachingRepository.Get<List<ImageDto>>(CacheCode.Image);
+			if (cache is not null)
+			{
+				return cache;
+			}
+
+			var images = await _imageRepository.GetAllAsync();
+			var imagesDto = _mapper.Map<List<ImageDto>>(images);
+
+			_cachingRepository.Save(CacheCode.Image, imagesDto);
+
+			return imagesDto;
 		}
-
-		var images = await _imageRepository.GetAllAsync();
-		var imagesDto = _mapper.Map<List<ImageDto>>(images);
-
-		_cachingRepository.Save(CacheCode.Image, imagesDto);
-
-		return imagesDto;
+		catch (Exception ex)
+		{
+			throw new ServiceException(ex.Message, ex);
+		}
 	}
 
 	public async Task<ImageDto> GetById(int id)
 	{
-		var cache = _cachingRepository.Get<List<ImageDto>>(CacheCode.Image);
-		if (cache is not null)
+		try
 		{
-			var cacheImage = cache.Find(x => x.Id == id);
-
-			if (cacheImage is not null)
+			var cache = _cachingRepository.Get<List<ImageDto>>(CacheCode.Image);
+			if (cache is not null)
 			{
-				return cacheImage;
+				var cacheImage = cache.Find(x => x.Id == id);
+
+				if (cacheImage is not null)
+				{
+					return cacheImage;
+				}
 			}
+
+			var image = await _imageRepository.GetByIdAsync(id);
+			var imageDto = _mapper.Map<ImageDto>(image);
+
+			_cachingRepository.Save(CacheCode.Image, imageDto);
+
+			return imageDto;
 		}
-
-		var image = await _imageRepository.GetByIdAsync(id);
-		var imageDto = _mapper.Map<ImageDto>(image);
-
-		_cachingRepository.Save(CacheCode.Image, imageDto);
-
-		return imageDto;
+		catch (Exception ex)
+		{
+			throw new ServiceException(ex.Message, ex);
+		}
 	}
 
 	public async Task<ImageDto> Create(CreateImageDto imageDto)
 	{
-		var image = new Image { Name = imageDto.Name, Folder = imageDto.Folder, };
-
-		var newImage = await _imageRepository.CreateAsync(image);
-
-		if (imageDto.ProjectId is not null && imageDto.ProjectId != 0)
+		try
 		{
-			var projectImage = new ProjectImage { ProjectId = imageDto.ProjectId.Value, ImageId = newImage.Id, };
+			var image = new Image { Name = imageDto.Name, Folder = imageDto.Folder, };
 
-			await _imageRepository.AddRelationshipWithProject(projectImage);
+			var newImage = await _imageRepository.CreateAsync(image);
+
+			if (imageDto.ProjectId is not null && imageDto.ProjectId != 0)
+			{
+				var projectImage = new ProjectImage { ProjectId = imageDto.ProjectId.Value, ImageId = newImage.Id, };
+
+				await _imageRepository.AddRelationshipWithProject(projectImage);
+			}
+			else if (imageDto.SkillId is not null && imageDto.SkillId != 0)
+			{
+				var skillImage = new SkillImage { SkillId = imageDto.SkillId.Value, ImageId = newImage.Id, };
+
+				await _imageRepository.AddRelationshipWithSkill(skillImage);
+			}
+
+			_cachingRepository.Remove(CacheCode.Image);
+
+			return _mapper.Map<ImageDto>(newImage);
 		}
-		else if (imageDto.SkillId is not null && imageDto.SkillId != 0)
+		catch (Exception ex)
 		{
-			var skillImage = new SkillImage { SkillId = imageDto.SkillId.Value, ImageId = newImage.Id, };
-
-			await _imageRepository.AddRelationshipWithSkill(skillImage);
+			throw new ServiceException(ex.Message, ex);
 		}
-
-		_cachingRepository.Remove(CacheCode.Image);
-
-		return _mapper.Map<ImageDto>(newImage);
 	}
 
 	public async Task<ImageDto> Delete(int id)
 	{
-		var imageDto = await GetById(id);
+		try
+		{
+			var imageDto = await GetById(id);
 
-		var image = _mapper.Map<Image>(imageDto);
+			if (imageDto is null)
+				throw new NotFoundEntityException("Image not found");
 
-		var deletedImage = await _imageRepository.DeleteAsync(image);
+			var image = _mapper.Map<Image>(imageDto);
 
-		_cachingRepository.Remove(CacheCode.Image);
+			var deletedImage = await _imageRepository.DeleteAsync(image);
 
-		return _mapper.Map<ImageDto>(deletedImage);
+			_cachingRepository.Remove(CacheCode.Image);
+
+			return _mapper.Map<ImageDto>(deletedImage);
+		}
+		catch (Exception ex)
+		{
+			throw new ServiceException(ex.Message, ex);
+		}
 	}
 }

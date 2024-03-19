@@ -30,7 +30,7 @@ public class SkillRepository : BaseRepository<Skill>, ISkillRepository
 		}
 		catch (Exception ex)
 		{
-			throw new RepositoryException(ex.Message, ex);
+			throw new ServiceException(ex.Message);
 		}
 	}
 
@@ -49,7 +49,7 @@ public class SkillRepository : BaseRepository<Skill>, ISkillRepository
 		}
 		catch (Exception ex)
 		{
-			throw new RepositoryException(ex.Message, ex);
+			throw new ServiceException(ex.Message);
 		}
 	}
 

@@ -95,8 +95,10 @@ public class ActivityService : IActivityService
 	{
 		try
 		{
-			var isActivityExists =
-				await GetById(activityDto.Id) ?? throw new NotFoundEntityException("Activity not found");
+			var isActivityExists = await GetById(activityDto.Id);
+
+			if (isActivityExists is null)
+				throw new NotFoundEntityException("Activity not found");
 
 			var activity = _mapper.Map<Activity>(activityDto);
 			activity.CreatedAt = isActivityExists.CreatedAt;
@@ -118,6 +120,9 @@ public class ActivityService : IActivityService
 		try
 		{
 			var activityDto = await GetById(id);
+
+			if (activityDto is null)
+				throw new NotFoundEntityException("Activity not found");
 
 			var activity = _mapper.Map<Activity>(activityDto);
 

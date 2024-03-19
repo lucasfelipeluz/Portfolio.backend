@@ -1,14 +1,14 @@
-﻿using System.Net;
-using Microsoft.AspNetCore.Diagnostics;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Portfolio.API.Utils;
 using Portfolio.Core.ExceptionHandles;
+using Portfolio.Core.Helpers;
 
 namespace Portfolio.API.Middlewares;
 
 public class ExceptionHandlerMiddleware
 {
 	private readonly RequestDelegate _next;
+	public static List<Exception> Exceptions { get; set; }
 
 	public ExceptionHandlerMiddleware(RequestDelegate next)
 	{
@@ -27,24 +27,37 @@ public class ExceptionHandlerMiddleware
 		}
 	}
 
-	private Task HandleExceptionAsync(HttpContext context, Exception ex)
+	private static Task HandleExceptionAsync(HttpContext context, Exception exception)
 	{
-		bool isDevelopmentMode = Environment.GetEnvironmentVariable("SERVER_MODE") == "development";
+		context.Response.ContentType = "application/json";
+		context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+		ViewModels.ResultViewModel response;
+		string JSONResult;
 
-		ViewModels.ResultViewModel response = isDevelopmentMode
-			? Responses.InternalServerErrorMessage()
-			: Responses.InternalServerErrorMessage(ex.Message);
-
-		if (isDevelopmentMode)
+		// Verify is a custom exception
+		if (exception.InnerException is NotFoundEntityException)
 		{
-			Console.WriteLine($"{ex.Message}\n{ex.StackTrace}");
+			context.Response.StatusCode = StatusCodes.Status404NotFound;
+			response = Responses.NotFoundErrorMessage(exception.Message);
+		}
+		else if (exception is ServiceException)
+		{
+			response = EnvironmentHelper.IsDevelopmentMode
+				? Responses.InternalServerErrorMessage(exception.Message, "Services")
+				: Responses.InternalServerErrorMessage();
+		}
+		else
+		{
+			response = EnvironmentHelper.IsDevelopmentMode
+				? Responses.InternalServerErrorMessage(exception.Message)
+				: Responses.ApplicationErrorMessage();
 		}
 
-		context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+		// Log the exception
+		Console.WriteLine($"{exception.Message}\n{exception.StackTrace}");
 
-		var result = JsonConvert.SerializeObject(response);
-		context.Response.StatusCode = StatusCodes.Status500InternalServerError;
-		context.Response.ContentType = "application/json";
-		return context.Response.WriteAsync(result);
+		// Send the response
+		JSONResult = JsonConvert.SerializeObject(response);
+		return context.Response.WriteAsync(JSONResult);
 	}
 }

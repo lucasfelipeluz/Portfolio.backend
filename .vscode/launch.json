@@ -16,10 +16,7 @@
 			"cwd": "${workspaceFolder}/src/Portfolio.API",
 			"stopAtEntry": false,
 			// Habilitar a inicialização de um navegador da web quando o ASP.NET Core for iniciado. Para obter mais informações: https://aka.ms/VSCode-CS-LaunchJson-WebBrowser
-			"serverReadyAction": {
-				"action": "openExternally",
-				"pattern": "\\bNow listening on:\\s+(https?://\\S+)"
-			},
+
 			"env": {
 				"ASPNETCORE_ENVIRONMENT": "Development"
 			},

@@ -27,7 +27,7 @@ public class ImageRepository : BaseRepository<Image>, IImageRepository
 		}
 		catch (Exception ex)
 		{
-			throw new RepositoryException(ex.Message, ex);
+			throw new ServiceException(ex.Message);
 		}
 	}
 
@@ -42,7 +42,7 @@ public class ImageRepository : BaseRepository<Image>, IImageRepository
 		}
 		catch (Exception ex)
 		{
-			throw new RepositoryException(ex.Message, ex);
+			throw new ServiceException(ex.Message);
 		}
 	}
 }

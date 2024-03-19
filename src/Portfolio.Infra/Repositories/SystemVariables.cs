@@ -29,7 +29,7 @@ public class SystemVariablesRepository : BaseRepository<SystemVariable>, ISystem
 		}
 		catch (Exception ex)
 		{
-			throw new RepositoryException(ex.Message, ex);
+			throw new ServiceException(ex.Message);
 		}
 	}
 }

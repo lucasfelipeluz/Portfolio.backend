@@ -20,18 +20,12 @@ public class AboutMeRepository : BaseRepository<AboutMe>, IAboutMeRepository
 	{
 		try
 		{
-			var aboutMe = await _context.Set<AboutMe>().AsNoTracking().OrderBy(e => e.CreatedAt).ToListAsync();
-
-			if (aboutMe.Count == 0 || aboutMe is null)
-			{
-				return null;
-			}
-
-			return aboutMe.Last();
+			var aboutMe = await _context.Set<AboutMe>().AsNoTracking().OrderBy(e => e.CreatedAt).FirstOrDefaultAsync();
+			return aboutMe;
 		}
 		catch (Exception ex)
 		{
-			throw new RepositoryException(ex.Message, ex);
+			throw new ServiceException(ex.Message);
 		}
 	}
 }

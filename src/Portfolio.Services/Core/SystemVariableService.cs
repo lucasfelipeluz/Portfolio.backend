@@ -82,6 +82,9 @@ public class SystemVariableService : ISystemVariableService
 		{
 			var isSystemVariableExists = await GetByKey(systemVariableDto.Name);
 
+			if (isSystemVariableExists is null)
+				throw new ServiceException("System variable not found");
+
 			var systemVariable = _mapper.Map<SystemVariable>(systemVariableDto);
 
 			if (isSystemVariableExists is null)

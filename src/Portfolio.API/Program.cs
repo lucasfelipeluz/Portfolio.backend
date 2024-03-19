@@ -7,6 +7,8 @@ using Microsoft.OpenApi.Models;
 using Portfolio.API.Auth;
 using Portfolio.API.Middlewares;
 using Portfolio.API.ViewModels;
+using Portfolio.Core.Contracts;
+using Portfolio.Core.Helpers;
 using Portfolio.Core.Provider;
 using Portfolio.Domain.Entities;
 using Portfolio.Infra.Cache;
@@ -24,8 +26,6 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Cors
 builder.Services.AddCors();
-
-bool isDevelopmentMode = Environment.GetEnvironmentVariable("SERVER_MODE") == "development";
 
 builder
 	.Services.AddControllers()
@@ -188,7 +188,7 @@ app.UseCors(options =>
 });
 
 // Configure the HTTP request pipeline.
-if (isDevelopmentMode)
+if (EnvironmentHelper.IsDevelopmentMode)
 {
 	app.UseSwagger();
 	app.UseSwaggerUI();
